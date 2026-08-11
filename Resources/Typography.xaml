@@ -1,0 +1,49 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        FINVORA TYPOGRAPHY SYSTEM
+        Font: Segoe UI (ships with Windows — no bundling/licensing needed).
+        Scale is deliberately small: 5 sizes cover every screen we've planned.
+        Two weights only (Normal / SemiBold) to match the "comfortable, not busy" density decision.
+    -->
+
+    <FontFamily x:Key="AppFontFamily">Segoe UI</FontFamily>
+
+    <!-- Sizes -->
+    <sys:Double xmlns:sys="clr-namespace:System;assembly=mscorlib" x:Key="FontSizeCaption">11</sys:Double>
+    <sys:Double xmlns:sys="clr-namespace:System;assembly=mscorlib" x:Key="FontSizeBody">13</sys:Double>
+    <sys:Double xmlns:sys="clr-namespace:System;assembly=mscorlib" x:Key="FontSizeSubheading">15</sys:Double>
+    <sys:Double xmlns:sys="clr-namespace:System;assembly=mscorlib" x:Key="FontSizeHeading">20</sys:Double>
+    <sys:Double xmlns:sys="clr-namespace:System;assembly=mscorlib" x:Key="FontSizeMetric">26</sys:Double>
+    <!-- big numbers on dashboard cards -->
+
+    <!-- Reusable text styles -->
+    <Style x:Key="TextCaption" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeCaption}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+    </Style>
+
+    <Style x:Key="TextBody" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+    </Style>
+
+    <Style x:Key="TextSubheading" TargetType="TextBlock" BasedOn="{StaticResource TextBody}">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeSubheading}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style x:Key="TextHeading" TargetType="TextBlock" BasedOn="{StaticResource TextBody}">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeHeading}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style x:Key="TextMetric" TargetType="TextBlock" BasedOn="{StaticResource TextBody}">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeMetric}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+</ResourceDictionary>

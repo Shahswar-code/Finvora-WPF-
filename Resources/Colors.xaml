@@ -1,0 +1,73 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        FINVORA COLOR SYSTEM
+        Approved Phase 1 palette: dark navy base, blue-to-purple accent gradient.
+        Never hardcode a Color/Brush anywhere else in the app — always reference
+        these DynamicResource keys so a future theme change is a one-file edit.
+    -->
+
+    <!-- ===================== BACKGROUNDS ===================== -->
+    <Color x:Key="BackgroundPrimaryColor">#0B1120</Color>
+    <!-- Page/window background -->
+    <SolidColorBrush x:Key="BackgroundPrimaryBrush" Color="{StaticResource BackgroundPrimaryColor}"/>
+
+    <Color x:Key="BackgroundSecondaryColor">#0F172A</Color>
+    <!-- Panels, side nav -->
+    <SolidColorBrush x:Key="BackgroundSecondaryBrush" Color="{StaticResource BackgroundSecondaryColor}"/>
+
+    <Color x:Key="SurfaceCardColor">#141B2E</Color>
+    <!-- Cards, list rows, dialogs -->
+    <SolidColorBrush x:Key="SurfaceCardBrush" Color="{StaticResource SurfaceCardColor}"/>
+
+    <Color x:Key="SurfaceCardHoverColor">#1B2338</Color>
+    <SolidColorBrush x:Key="SurfaceCardHoverBrush" Color="{StaticResource SurfaceCardHoverColor}"/>
+
+    <!-- ===================== BORDERS ===================== -->
+    <Color x:Key="BorderDefaultColor">#232B42</Color>
+    <SolidColorBrush x:Key="BorderDefaultBrush" Color="{StaticResource BorderDefaultColor}"/>
+
+    <Color x:Key="BorderStrongColor">#334066</Color>
+    <SolidColorBrush x:Key="BorderStrongBrush" Color="{StaticResource BorderStrongColor}"/>
+
+    <!-- ===================== TEXT ===================== -->
+    <Color x:Key="TextPrimaryColor">#F1F5F9</Color>
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}"/>
+
+    <Color x:Key="TextSecondaryColor">#94A3B8</Color>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}"/>
+
+    <Color x:Key="TextMutedColor">#64748B</Color>
+    <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource TextMutedColor}"/>
+
+    <!-- ===================== ACCENT (blue -> purple, matches logo) ===================== -->
+    <Color x:Key="AccentStartColor">#38BDF8</Color>
+    <Color x:Key="AccentEndColor">#8B5CF6</Color>
+
+    <LinearGradientBrush x:Key="AccentGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource AccentStartColor}" Offset="0"/>
+        <GradientStop Color="{StaticResource AccentEndColor}" Offset="1"/>
+    </LinearGradientBrush>
+
+    <!-- Flat accent for cases a gradient can't be used (e.g. text, thin borders) -->
+    <SolidColorBrush x:Key="AccentSolidBrush" Color="{StaticResource AccentEndColor}"/>
+
+    <!-- ===================== STATUS COLORS ===================== -->
+    <Color x:Key="SuccessColor">#34D399</Color>
+    <!-- Paid / completed -->
+    <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}"/>
+
+    <Color x:Key="WarningColor">#FBBF24</Color>
+    <!-- Pending / due soon -->
+    <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}"/>
+
+    <Color x:Key="ErrorColor">#F87171</Color>
+    <!-- Overdue -->
+    <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}"/>
+
+    <Color x:Key="PartialColor">#A78BFA</Color>
+    <!-- Partial payment -->
+    <SolidColorBrush x:Key="PartialBrush" Color="{StaticResource PartialColor}"/>
+
+</ResourceDictionary>

@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net10.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<ApplicationIcon>Assets\finvora.ico</ApplicationIcon>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.0-rc5.4" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Resource Include="Assets\finvora.png" />
+	</ItemGroup>
+
+	<!--
+      Safety net: if a stray App.xaml ends up anywhere else under this project
+      (e.g. a leftover nested folder from a copy/paste mistake), it will NOT be
+      treated as a second application entry point. Only the root App.xaml counts.
+  -->
+	<ItemGroup>
+		<ApplicationDefinition Remove="**\App.xaml" />
+		<ApplicationDefinition Include="App.xaml" />
+	</ItemGroup>
+
+</Project> 
