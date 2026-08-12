@@ -1,39 +1,54 @@
 <Window x:Class="Finvora.Views.SplashWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:converters="clr-namespace:Finvora.Converters"
         WindowStyle="None"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen"
-        Width="420" Height="320"
+        Width="520" Height="420"
+        Opacity="0"
         Background="{DynamicResource BackgroundPrimaryBrush}"
         ShowInTaskbar="False">
 
-    <Window.Resources>
-        <converters:PercentToWidthConverter x:Key="PercentToWidthConverter"/>
-    </Window.Resources>
-
     <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="1">
-        <Grid>
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Grid Margin="0,36,0,20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-                <Image Source="Assets/finvora.png" Width="80" Height="80" Margin="0,0,0,20" Stretch="Uniform"/>
+            <!-- Main content: logo, name, slogan, status text, progress bar -->
+            <StackPanel Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
 
-                <TextBlock Text="FINVORA" Style="{StaticResource TextHeading}" HorizontalAlignment="Center"/>
-                <TextBlock Text="Installments Business Suite" Style="{StaticResource TextCaption}"
-                           HorizontalAlignment="Center" Margin="0,4,0,36"/>
+                <Image Source="Assets/finvora-mark.png" Width="100" Height="100" Margin="0,0,0,20" Stretch="Uniform"/> 
+
+                <TextBlock Text="FINVORA" FontWeight="Bold" FontSize="24"
+                           FontFamily="{StaticResource AppFontFamily}"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
+                           HorizontalAlignment="Center"/>
+
+                <TextBlock Text="INSTALLMENTS BUSINESS SUITE" Style="{StaticResource TextCaption}"
+                           HorizontalAlignment="Center" Margin="0,6,0,34"/>
 
                 <TextBlock Text="{Binding StatusText}" Style="{StaticResource TextCaption}"
-                           HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                           HorizontalAlignment="Center" Margin="0,0,0,12"/>
 
-                <Border Width="220" Height="3" Background="{DynamicResource SurfaceCardHoverBrush}"
-                        CornerRadius="2" ClipToBounds="True" HorizontalAlignment="Center">
-                    <Border Height="3" HorizontalAlignment="Left" CornerRadius="2"
-                            Background="{DynamicResource AccentGradientBrush}"
-                            Width="{Binding ProgressPercent, Converter={StaticResource PercentToWidthConverter}, ConverterParameter=220}"/>
+                <Border Width="260" Height="6" Background="{DynamicResource SurfaceCardHoverBrush}"
+                        CornerRadius="3" ClipToBounds="True" HorizontalAlignment="Center">
+                    <Border x:Name="ProgressFill" Width="260" Height="6" HorizontalAlignment="Left"
+                            CornerRadius="3" Background="{DynamicResource AccentGradientBrush}"
+                            RenderTransformOrigin="0,0.5">
+                        <Border.RenderTransform>
+                            <ScaleTransform x:Name="ProgressFillScale" ScaleX="0"/>
+                        </Border.RenderTransform>
+                    </Border>
                 </Border>
 
             </StackPanel>
+
+            <!-- Version label, pinned to the bottom of the splash -->
+            <TextBlock Grid.Row="1" Text="Version 1.0.0" Style="{StaticResource TextCaption}"
+                       HorizontalAlignment="Center" Opacity="0.6"/>
+
         </Grid>
     </Border>
-</Window>
+</Window> 

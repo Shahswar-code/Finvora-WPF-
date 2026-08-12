@@ -14,8 +14,14 @@
 		<PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.0-rc5.4" />
 	</ItemGroup>
 
+	<!--
+      Every image dropped into Assets is physically copied to the build output
+      folder, so it's easy to verify on disk that the logo actually made it in.
+  -->
 	<ItemGroup>
-		<Resource Include="Assets\finvora.png" />
+		<Content Include="Assets\**\*.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 
 	<!--
@@ -28,4 +34,4 @@
 		<ApplicationDefinition Include="App.xaml" />
 	</ItemGroup>
 
-</Project> 
+</Project>  
