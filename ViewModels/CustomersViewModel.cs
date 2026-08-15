@@ -57,7 +57,7 @@ namespace Finvora.ViewModels
                 Owner = Application.Current.MainWindow
             };
             window.ShowDialog();
-        } 
+        }
 
         [RelayCommand]
         private void ExportAll()
@@ -70,19 +70,23 @@ namespace Finvora.ViewModels
         [RelayCommand]
         private void ViewCustomer(Customer customer)
         {
-            // Step G will replace this with a real details popup.
-            MessageBox.Show(
-                $"{customer.FullName}\nPhone: {customer.Phone}\nItem: {customer.ItemName}\n" +
-                $"Total: Rs {customer.TotalPrice:N0}\nRemaining: Rs {customer.RemainingBalance:N0}",
-                "Customer details (preview)", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
+            var vm = new CustomerInvoiceViewModel(customer);
+            var window = new CustomerInvoiceWindow(vm)
+            {
+                Owner = Application.Current.MainWindow
+            };
+            window.ShowDialog();
+        }  
 
         [RelayCommand]
         private void EditCustomer(Customer customer)
         {
-            // Step H will replace this with the real Edit form (Fully Paid / Partially Paid).
-            MessageBox.Show($"Edit form for {customer.FullName} is coming in a later step.", "Coming soon",
-                MessageBoxButton.OK, MessageBoxImage.Information);
+            var vm = new EditCustomerViewModel(_customerService, customer);
+            var window = new EditCustomerWindow(vm)
+            {
+                Owner = Application.Current.MainWindow
+            };
+            window.ShowDialog();
         }
 
         [RelayCommand]
