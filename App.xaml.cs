@@ -29,8 +29,9 @@ namespace Finvora
             try
             {
                 var orchestrator = new StartupOrchestrator(new IStartupTask[]
-                {
-                    new EnsureAppDataFolderTask(),
+{
+                           new EnsureAppDataFolderTask(),
+                           new EnsureDatabaseTask(),
                     // Future phases add real startup work here, e.g.:
                     // new LoadSettingsTask(),
                     // new EnsureDatabaseTask(),

@@ -1,7 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Finvora.Models;
+using Finvora.Services;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
@@ -9,57 +13,34 @@ using SkiaSharp;
 
 namespace Finvora.ViewModels
 {
-    public partial class DashboardViewModel : ObservableObject
+    public partial class DashboardViewModel : ObservableObject, IDisposable
     {
-        private record PeriodSnapshot(
-            string TotalRevenue, string PendingBalance, string OverdueAmount, string Collected,
-            double Paid, double Pending, double Overdue, double Partial,
-            double[] CashFlow);
-
-        private static readonly Dictionary<string, PeriodSnapshot> MockData = new()
-        {
-            ["Daily"] = new PeriodSnapshot(
-                "Rs 12,400", "Rs 28,000", "Rs 9,500", "Rs 2,150",
-                0, 3, 1, 0,
-                new double[] { 0, 0, 0, 0, 0, 40, 25, 0, 0, 0, 0, 0 }),
-            ["Weekly"] = new PeriodSnapshot(
-                "Rs 84,000", "Rs 165,000", "Rs 62,000", "Rs 9,800",
-                1, 6, 3, 0,
-                new double[] { 0, 0, 0, 0, 0, 140, 60, 0, 0, 0, 0, 0 }),
-            ["Monthly"] = new PeriodSnapshot(
-                "Rs 320,000", "Rs 780,000", "Rs 780,000", "Rs 20,000",
-                0, 12, 10, 0,
-                new double[] { 0, 0, 0, 0, 0, 300, 20, 0, 0, 0, 0, 0 }),
-            ["Yearly"] = new PeriodSnapshot(
-                "Rs 3,840,000", "Rs 1,240,000", "Rs 940,000", "Rs 245,000",
-                8, 9, 5, 0,
-                new double[] { 180, 220, 260, 300, 340, 600, 520, 300, 280, 260, 240, 300 }),
-        };
+        private readonly CustomerService _customerService;
 
         [ObservableProperty] private string businessName;
 
-        public string Greeting => System.DateTime.Now.Hour switch
+        public string Greeting => DateTime.Now.Hour switch
         {
             < 12 => "Good Morning",
             < 17 => "Good Afternoon",
             _ => "Good Evening"
         };
 
-        [ObservableProperty] private string totalRevenue;
-        [ObservableProperty] private string pendingBalance;
-        [ObservableProperty] private string overdueAmount;
-        [ObservableProperty] private string collectedThisPeriod;
+        [ObservableProperty] private string totalRevenue = "Rs 0";
+        [ObservableProperty] private string pendingBalance = "Rs 0";
+        [ObservableProperty] private string overdueAmount = "Rs 0";
+        [ObservableProperty] private string collectedThisPeriod = "Rs 0";
 
-        [ObservableProperty] private int totalCustomers = 2;
-        [ObservableProperty] private int activeCustomers = 2;
-        [ObservableProperty] private int completedPlans = 0;
+        [ObservableProperty] private int totalCustomers;
+        [ObservableProperty] private int activeCustomers;
+        [ObservableProperty] private int completedPlans;
         [ObservableProperty] private int totalPlans;
 
         public ObservableCollection<string> Periods { get; } = new() { "Daily", "Weekly", "Monthly", "Yearly" };
 
         [ObservableProperty] private string selectedPeriod = "Monthly";
 
-        partial void OnSelectedPeriodChanged(string value) => LoadData();
+        partial void OnSelectedPeriodChanged(string value) => _ = LoadDataAsync();
 
         // ----- Installment Summary donut -----
         private readonly ObservableCollection<double> _paidValue = new() { 0 };
@@ -69,12 +50,12 @@ namespace Finvora.ViewModels
 
         public ISeries[] InstallmentSeries { get; }
 
-        [ObservableProperty] private string paidSummary;
-        [ObservableProperty] private string pendingSummary;
-        [ObservableProperty] private string overdueSummary;
-        [ObservableProperty] private string partialSummary;
+        [ObservableProperty] private string paidSummary = "";
+        [ObservableProperty] private string pendingSummary = "";
+        [ObservableProperty] private string overdueSummary = "";
+        [ObservableProperty] private string partialSummary = "";
 
-        // ----- Cash Flow Overview (line/area) -----
+        // ----- Cash Flow Overview: money collected per month, last 12 months -----
         private readonly ObservableCollection<double> _cashFlowValues =
             new() { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
@@ -82,7 +63,12 @@ namespace Finvora.ViewModels
         public Axis[] CashFlowXAxes { get; }
         public Axis[] CashFlowYAxes { get; }
 
-        // ----- Monthly Revenue vs Pending (always "current year", independent of the period selector) -----
+        // ----- Monthly Revenue vs Pending: current calendar year -----
+        private readonly ObservableCollection<double> _monthlyRevenueValues =
+            new() { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        private readonly ObservableCollection<double> _monthlyPendingValues =
+            new() { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
         public ISeries[] MonthlySeries { get; }
         public Axis[] MonthlyXAxes { get; }
         public Axis[] MonthlyYAxes { get; }
@@ -90,8 +76,9 @@ namespace Finvora.ViewModels
         private static readonly string[] MonthLabels =
             { "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec" };
 
-        public DashboardViewModel(string businessName)
+        public DashboardViewModel(string businessName, CustomerService customerService)
         {
+            _customerService = customerService;
             BusinessName = businessName;
 
             InstallmentSeries = new ISeries[]
@@ -124,18 +111,8 @@ namespace Finvora.ViewModels
 
             MonthlySeries = new ISeries[]
             {
-                new ColumnSeries<double>
-                {
-                    Name = "Revenue",
-                    Values = new double[] { 40,55,60,50,65,70,58,62,68,72,80,85 },
-                    Fill = new SolidColorPaint(SKColor.Parse("#38BDF8"))
-                },
-                new ColumnSeries<double>
-                {
-                    Name = "Pending",
-                    Values = new double[] { 20,18,25,22,30,28,26,24,20,18,15,12 },
-                    Fill = new SolidColorPaint(SKColor.Parse("#FBBF24"))
-                }
+                new ColumnSeries<double> { Name = "Revenue", Values = _monthlyRevenueValues, Fill = new SolidColorPaint(SKColor.Parse("#38BDF8")) },
+                new ColumnSeries<double> { Name = "Pending", Values = _monthlyPendingValues, Fill = new SolidColorPaint(SKColor.Parse("#FBBF24")) }
             };
             MonthlyXAxes = new[]
             {
@@ -143,7 +120,10 @@ namespace Finvora.ViewModels
             };
             MonthlyYAxes = BuildYAxis();
 
-            LoadData();
+            // Refresh automatically whenever a customer is added/edited/deleted anywhere in the app.
+            _customerService.CustomersChanged += OnCustomersChanged;
+
+            _ = LoadDataAsync();
         }
 
         private static Axis[] BuildYAxis() => new[]
@@ -156,47 +136,107 @@ namespace Finvora.ViewModels
         };
 
         [RelayCommand]
-        private void Refresh() => LoadData();
+        private async Task Refresh() => await LoadDataAsync();
+
+        private async void OnCustomersChanged(object? sender, EventArgs e) => await LoadDataAsync();
 
         /// <summary>
-        /// Pulls the snapshot for the currently selected period and pushes it into the UI.
-        /// This is the ONLY place dashboard numbers change — no background timers, no randomness.
-        /// Once the SQL database is wired up, this method is where the real query goes.
+        /// Pulls every customer from the database and recomputes every number
+        /// and chart on the dashboard. This is the ONLY place dashboard data
+        /// is calculated — no mock data, no background timers.
         /// </summary>
-        private void LoadData()
+        private async Task LoadDataAsync()
         {
-            if (!MockData.TryGetValue(SelectedPeriod, out var snapshot))
+            var customers = await _customerService.GetAllAsync();
+            var (rangeStart, rangeEnd) = GetPeriodRange(SelectedPeriod);
+
+            // ----- Top stat cards -----
+            TotalCustomers = customers.Count;
+            ActiveCustomers = customers.Count(c => c.Status != PaymentStatus.Paid);
+            CompletedPlans = customers.Count(c => c.Status == PaymentStatus.Paid);
+            TotalPlans = customers.Count;
+
+            TotalRevenue = FormatCurrency(customers
+                .Where(c => c.DateAdded >= rangeStart && c.DateAdded < rangeEnd)
+                .Sum(c => c.TotalPrice));
+
+            PendingBalance = FormatCurrency(customers.Sum(c => c.RemainingBalance));
+
+            OverdueAmount = FormatCurrency(customers
+                .Where(c => c.IsOverdue)
+                .Sum(c => c.RemainingBalance));
+
+            // Estimate for now: total paid on plans created within this period.
+            // Once Payments has its own history ledger, this becomes an exact
+            // "money actually collected in this date range" figure.
+            CollectedThisPeriod = FormatCurrency(customers
+                .Where(c => c.DateAdded >= rangeStart && c.DateAdded < rangeEnd)
+                .Sum(c => c.AmountPaid));
+
+            // ----- Installment Summary donut -----
+            double paid = customers.Count(c => c.Status == PaymentStatus.Paid);
+            double overdue = customers.Count(c => c.IsOverdue);
+            double partial = customers.Count(c => c.Status == PaymentStatus.Partial && !c.IsOverdue);
+            double pending = customers.Count(c => c.Status == PaymentStatus.Unpaid && !c.IsOverdue);
+
+            _paidValue[0] = paid;
+            _pendingValue[0] = pending;
+            _overdueValue[0] = overdue;
+            _partialValue[0] = partial;
+
+            var donutTotal = paid + pending + overdue + partial;
+            PaidSummary = FormatSlice("Paid", paid, donutTotal);
+            PendingSummary = FormatSlice("Pending", pending, donutTotal);
+            OverdueSummary = FormatSlice("Overdue", overdue, donutTotal);
+            PartialSummary = FormatSlice("Partial", partial, donutTotal);
+
+            // ----- Cash Flow: last 12 months, ending this month -----
+            var today = DateTime.Now;
+            for (int i = 0; i < 12; i++)
             {
-                return;
+                var monthStart = new DateTime(today.Year, today.Month, 1).AddMonths(i - 11);
+                var monthEnd = monthStart.AddMonths(1);
+
+                _cashFlowValues[i] = (double)customers
+                    .Where(c => c.DateAdded >= monthStart && c.DateAdded < monthEnd)
+                    .Sum(c => c.AmountPaid);
             }
 
-            TotalRevenue = snapshot.TotalRevenue;
-            PendingBalance = snapshot.PendingBalance;
-            OverdueAmount = snapshot.OverdueAmount;
-            CollectedThisPeriod = snapshot.Collected;
-
-            _paidValue[0] = snapshot.Paid;
-            _pendingValue[0] = snapshot.Pending;
-            _overdueValue[0] = snapshot.Overdue;
-            _partialValue[0] = snapshot.Partial;
-
-            TotalPlans = (int)(snapshot.Paid + snapshot.Pending + snapshot.Overdue + snapshot.Partial);
-
-            for (var i = 0; i < _cashFlowValues.Count && i < snapshot.CashFlow.Length; i++)
+            // ----- Monthly Revenue vs Pending: current calendar year -----
+            for (int month = 1; month <= 12; month++)
             {
-                _cashFlowValues[i] = snapshot.CashFlow[i];
-            }
+                var monthCustomers = customers
+                    .Where(c => c.DateAdded.Year == today.Year && c.DateAdded.Month == month)
+                    .ToList();
 
-            PaidSummary = FormatSlice("Paid", snapshot.Paid);
-            PendingSummary = FormatSlice("Pending", snapshot.Pending);
-            OverdueSummary = FormatSlice("Overdue", snapshot.Overdue);
-            PartialSummary = FormatSlice("Partial", snapshot.Partial);
+                _monthlyRevenueValues[month - 1] = (double)monthCustomers.Sum(c => c.TotalPrice);
+                _monthlyPendingValues[month - 1] = (double)monthCustomers.Sum(c => c.RemainingBalance);
+            }
         }
 
-        private string FormatSlice(string label, double value)
+        private static (DateTime start, DateTime end) GetPeriodRange(string period)
         {
-            var percent = TotalPlans == 0 ? 0 : value / TotalPlans * 100;
+            var now = DateTime.Now;
+            return period switch
+            {
+                "Daily" => (now.Date, now.Date.AddDays(1)),
+                "Weekly" => (now.Date.AddDays(-(int)now.DayOfWeek), now.Date.AddDays(7 - (int)now.DayOfWeek)),
+                "Yearly" => (new DateTime(now.Year, 1, 1), new DateTime(now.Year + 1, 1, 1)),
+                _ => (new DateTime(now.Year, now.Month, 1), new DateTime(now.Year, now.Month, 1).AddMonths(1)), // Monthly
+            };
+        }
+
+        private static string FormatCurrency(decimal amount) => $"Rs {amount:N0}";
+
+        private static string FormatSlice(string label, double value, double total)
+        {
+            var percent = total == 0 ? 0 : value / total * 100;
             return $"{label}  {value:0} ({percent:0.0}%)";
         }
+
+        public void Dispose()
+        {
+            _customerService.CustomersChanged -= OnCustomersChanged;
+        }
     }
-}
+}  

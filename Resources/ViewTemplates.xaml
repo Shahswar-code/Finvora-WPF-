@@ -3,12 +3,16 @@
                      xmlns:vm="clr-namespace:Finvora.ViewModels"
                      xmlns:views="clr-namespace:Finvora.Views">
 
-    <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
-        <views:DashboardView/>
-    </DataTemplate>
+	<DataTemplate DataType="{x:Type vm:DashboardViewModel}">
+		<views:DashboardView/>
+	</DataTemplate>
 
-    <DataTemplate DataType="{x:Type vm:ComingSoonViewModel}">
-        <views:ComingSoonView/>
-    </DataTemplate>
+	<DataTemplate DataType="{x:Type vm:ComingSoonViewModel}">
+		<views:ComingSoonView/>
+	</DataTemplate>
 
-</ResourceDictionary> 
+	<DataTemplate DataType="{x:Type vm:CustomersViewModel}">
+		<views:CustomersView/>
+	</DataTemplate>
+
+</ResourceDictionary>
