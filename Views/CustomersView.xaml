@@ -304,7 +304,7 @@
                                             </MultiBinding>
                                         </Border.Width>
                                     </Border>
-                                </Border>
+                                </Border> 
 
                                 <!-- Paid + installment label / dates -->
                                 <TextBlock Style="{StaticResource TextCaption}" Margin="0,0,0,2">
