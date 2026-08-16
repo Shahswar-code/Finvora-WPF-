@@ -141,6 +141,7 @@ namespace Finvora.ViewModels
             var labelFont = new XFont("Segoe UI", 9.5, XFontStyle.Regular);
             var valueFont = new XFont("Segoe UI", 9.5, XFontStyle.Bold);
             var nameFont = new XFont("Segoe UI", 15, XFontStyle.Bold);
+            var statusCaptionFont = new XFont("Segoe UI", 8, XFontStyle.Regular);
             var badgeFont = new XFont("Segoe UI", 9, XFontStyle.Bold);
             var balanceLabelFont = new XFont("Segoe UI", 10, XFontStyle.Bold);
             var balanceValueFont = new XFont("Segoe UI", 20, XFontStyle.Bold);
@@ -160,19 +161,26 @@ namespace Finvora.ViewModels
 
             gfx.DrawRectangle(new XSolidBrush(accentBlue), 0, headerHeight, pageWidth, 4);
 
-            double y = headerHeight + 4 + 28;
+            double y = headerHeight + 4 + 22;
 
-            // ---- Status badge ----
+            // ---- Status badge: its own dedicated row, well clear of "Bill To" below ----
             string badgeText = IsOverdue ? "OVERDUE"
-                : Status switch { PaymentStatus.Paid => "PAID", PaymentStatus.Partial => "PARTIALLY PAID", _ => "UNPAID" };
+                : Status switch { PaymentStatus.Paid => "PAID IN FULL", PaymentStatus.Partial => "PARTIALLY PAID", _ => "UNPAID" };
             var badgeColor = IsOverdue ? red
                 : Status switch { PaymentStatus.Paid => green, PaymentStatus.Partial => amber, _ => amber };
 
+            const double badgeHeight = 24;
             var badgeSize = gfx.MeasureString(badgeText, badgeFont);
-            double badgeWidth = badgeSize.Width + 22;
+            double badgeWidth = badgeSize.Width + 24;
             double badgeX = pageWidth - margin - badgeWidth;
-            gfx.DrawRoundedRectangle(new XSolidBrush(badgeColor), new XRect(badgeX, y - 15, badgeWidth, 22), new XSize(11, 11));
-            gfx.DrawString(badgeText, badgeFont, whiteBrush, new XRect(badgeX, y - 15, badgeWidth, 22), XStringFormats.Center);
+
+            gfx.DrawString("ACCOUNT STATUS", statusCaptionFont, grayBrush,
+                new XRect(margin, y, contentWidth - badgeWidth - 12, 12), XStringFormats.TopLeft);
+
+            gfx.DrawRoundedRectangle(new XSolidBrush(badgeColor), new XRect(badgeX, y - 4, badgeWidth, badgeHeight), new XSize(12, 12));
+            gfx.DrawString(badgeText, badgeFont, whiteBrush, new XRect(badgeX, y - 4, badgeWidth, badgeHeight), XStringFormats.Center);
+
+            y += badgeHeight + 26;
 
             // ---- Bill To ----
             gfx.DrawString("BILL TO", sectionFont, new XSolidBrush(accentPurple), new XPoint(margin, y));
@@ -185,31 +193,31 @@ namespace Finvora.ViewModels
             if (!string.IsNullOrWhiteSpace(Cnic)) { gfx.DrawString(Cnic!, labelFont, grayBrush, new XPoint(margin, y)); y += 15; }
             if (!string.IsNullOrWhiteSpace(Address)) { gfx.DrawString(Address!, labelFont, grayBrush, new XPoint(margin, y)); y += 15; }
 
-            y += 12;
+            y += 14;
             gfx.DrawLine(dividerPen, margin, y, pageWidth - margin, y);
             y += 24;
 
             // ---- Plan Details ----
             gfx.DrawString("PLAN DETAILS", sectionFont, new XSolidBrush(accentPurple), new XPoint(margin, y));
-            y += 20;
+            y += 22;
             DrawRow(gfx, "Item / Plan", ItemName, margin, contentWidth, labelFont, valueFont, lightPanelBrush, ref y, shaded: true);
             DrawRow(gfx, "Frequency", Frequency.ToString(), margin, contentWidth, labelFont, valueFont, lightPanelBrush, ref y, shaded: false);
             DrawRow(gfx, "Started On", DateAdded.ToString("dd MMM yyyy"), margin, contentWidth, labelFont, valueFont, lightPanelBrush, ref y, shaded: true);
             DrawRow(gfx, "Next / Last Due Date", DueDate.ToString("dd MMM yyyy"), margin, contentWidth, labelFont, valueFont, lightPanelBrush, ref y, shaded: false);
 
-            y += 12;
+            y += 14;
             gfx.DrawLine(dividerPen, margin, y, pageWidth - margin, y);
             y += 24;
 
             // ---- Payment Summary ----
             gfx.DrawString("PAYMENT SUMMARY", sectionFont, new XSolidBrush(accentPurple), new XPoint(margin, y));
-            y += 20;
+            y += 22;
             DrawRow(gfx, "Total Price", $"Rs {TotalPrice:N0}", margin, contentWidth, labelFont, valueFont, lightPanelBrush, ref y, shaded: true);
             DrawRow(gfx, "Advance Paid", $"Rs {AdvancePaid:N0}", margin, contentWidth, labelFont, valueFont, lightPanelBrush, ref y, shaded: false);
             DrawRow(gfx, "Total Amount Paid", $"Rs {AmountPaid:N0}", margin, contentWidth, labelFont, valueFont, lightPanelBrush, ref y, shaded: true);
 
             // ---- Progress bar ----
-            y += 8;
+            y += 12;
             const double barHeight = 8;
             gfx.DrawRoundedRectangle(lightPanelBrush, new XRect(margin, y, contentWidth, barHeight), new XSize(4, 4));
             double filledWidth = contentWidth * Math.Clamp(PaymentProgressPercent / 100.0, 0, 1);
@@ -217,10 +225,10 @@ namespace Finvora.ViewModels
             {
                 gfx.DrawRoundedRectangle(new XSolidBrush(accentBlue), new XRect(margin, y, filledWidth, barHeight), new XSize(4, 4));
             }
-            y += barHeight + 6;
+            y += barHeight + 8;
             gfx.DrawString($"{PaymentProgressPercent:N0}% paid", labelFont, grayBrush, new XPoint(margin, y));
 
-            y += 22;
+            y += 26;
 
             // ---- Remaining balance panel ----
             var balanceColor = RemainingBalance <= 0 ? green : (IsOverdue ? red : amber);
@@ -231,7 +239,9 @@ namespace Finvora.ViewModels
             gfx.DrawString($"Rs {RemainingBalance:N0}", balanceValueFont, new XSolidBrush(balanceColor),
                 new XRect(margin + 20, y + 10, contentWidth - 40, panelHeight - 10), XStringFormats.CenterRight);
 
-            // ---- Footer ----
+            y += panelHeight;
+
+            // ---- Footer (pinned to bottom of page, independent of content flow) ----
             double footerLineY = pageHeight - 60;
             gfx.DrawLine(dividerPen, margin, footerLineY, pageWidth - margin, footerLineY);
             gfx.DrawString("Thank you for your business!", footerFont, grayBrush, new XPoint(margin, footerLineY + 16));
@@ -256,4 +266,4 @@ namespace Finvora.ViewModels
             y += rowHeight;
         }
     }
-}  
+}    

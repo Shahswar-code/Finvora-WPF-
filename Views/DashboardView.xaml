@@ -4,7 +4,7 @@
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
              xmlns:views="clr-namespace:Finvora.Views">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <ScrollViewer VerticalScrollBarVisibility="Hidden"> 
         <StackPanel>
 
             <!-- Header -->
@@ -16,7 +16,7 @@
 
                 <StackPanel Grid.Column="0">
                     <TextBlock FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}">
-                        <Run Text="{Binding Greeting, Mode=OneWay}"/><Run Text=", "/><Run Text="{Binding BusinessName}"/><Run Text="!"/> 
+                        <Run Text="{Binding Greeting, Mode=OneWay}"/><Run Text=", "/><Run Text="{Binding BusinessName}"/><Run Text="!"/>
                     </TextBlock>
                     <TextBlock Text="Here's your real-time business analytics."
                                Style="{StaticResource TextCaption}" Margin="0,4,0,0"/>
@@ -97,6 +97,7 @@
                         <Grid>
                             <lvc:PieChart Series="{Binding InstallmentSeries}" InitialRotation="-90"
                                                TooltipPosition="Hidden"
+                                          Background="Transparent"
                                           Width="200" Height="200" HorizontalAlignment="Center"/>
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
                                 <TextBlock Text="{Binding TotalPlans}" Style="{StaticResource TextMetric}" HorizontalAlignment="Center"/>
@@ -128,7 +129,7 @@
                     <StackPanel>
                         <TextBlock Text="Cash Flow Overview" Style="{StaticResource TextSubheading}" Margin="0,0,0,16"/>
                         <lvc:CartesianChart Series="{Binding CashFlowSeries}" XAxes="{Binding CashFlowXAxes}"
-                                             YAxes="{Binding CashFlowYAxes}" Height="260"/>
+                                             YAxes="{Binding CashFlowYAxes}" Background="Transparent" Height="260"/>
                     </StackPanel>
                 </Border>
             </Grid>
@@ -138,10 +139,10 @@
                 <StackPanel>
                     <TextBlock Text="Monthly Revenue vs Pending — Current Year" Style="{StaticResource TextSubheading}"/>
                     <lvc:CartesianChart Series="{Binding MonthlySeries}" XAxes="{Binding MonthlyXAxes}"
-                                         YAxes="{Binding MonthlyYAxes}" Height="260" Margin="0,16,0,0"/>
+                                         YAxes="{Binding MonthlyYAxes}" Background="Transparent" Height="260" Margin="0,16,0,0"/>
                 </StackPanel>
             </Border>
 
         </StackPanel>
     </ScrollViewer>
-</UserControl> 
+</UserControl>  

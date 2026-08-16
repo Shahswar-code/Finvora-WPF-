@@ -6,6 +6,7 @@ namespace Finvora.Data
     public class FinvoraDbContext : DbContext
     {
         public DbSet<Customer> Customers => Set<Customer>();
+        public DbSet<AppSecurity> AppSecurity => Set<AppSecurity>();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

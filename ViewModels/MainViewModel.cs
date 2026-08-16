@@ -8,15 +8,13 @@ namespace Finvora.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
-        // One shared instance for the whole app session. Both CustomersViewModel and
-        // (later) DashboardViewModel will use this same instance, so they react to the
-        // same CustomersChanged event -- add a customer anywhere, every open screen
-        // that cares updates automatically.
         private readonly CustomerService _customerService = new();
+        private readonly SettingsService _settingsService = new();
+        private readonly BackupService _backupService = new();
+        private readonly SecurityService _securityService = new();
 
-        // Placeholder until the Settings phase lets the user set their real business name.
         [ObservableProperty]
-        private string businessName = "MediSoft Solutions";
+        private string businessName = "My Business";
 
         [ObservableProperty]
         private object? currentPage;
@@ -25,6 +23,11 @@ namespace Finvora.ViewModels
 
         public MainViewModel()
         {
+            _settingsService.Load();
+            BusinessName = _settingsService.Current.BusinessName;
+
+            _settingsService.SettingsChanged += OnSettingsChanged;
+
             NavItems = new ObservableCollection<NavItem>
             {
                 new("Dashboard",     "\uE80F", () => new DashboardViewModel(BusinessName, _customerService)),
@@ -33,7 +36,7 @@ namespace Finvora.ViewModels
                 new("Payments",      "\uE8C7", () => new ComingSoonViewModel("Payments")),
                 new("Notifications", "\uE7E7", () => new ComingSoonViewModel("Notifications")),
                 new("Reports",       "\uE9D9", () => new ComingSoonViewModel("Reports")),
-                new("Settings",      "\uE713", () => new ComingSoonViewModel("Settings")),
+                new("Settings",      "\uE713", () => new SettingsViewModel(_settingsService, _backupService, _securityService)),
             };
 
             Navigate(NavItems[0]);
@@ -47,8 +50,6 @@ namespace Finvora.ViewModels
                 navItem.IsSelected = navItem == item;
             }
 
-            // Stop the outgoing page's background work (e.g. event subscriptions)
-            // before letting it go, so it doesn't keep running after it's off-screen.
             if (CurrentPage is System.IDisposable disposable)
             {
                 disposable.Dispose();
@@ -71,5 +72,10 @@ namespace Finvora.ViewModels
                 Application.Current.Shutdown();
             }
         }
+
+        private void OnSettingsChanged(object? sender, System.EventArgs e)
+        {
+            BusinessName = _settingsService.Current.BusinessName;
+        }
     }
-}  
+} 
