@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Finvora.Models;
@@ -16,6 +17,17 @@ namespace Finvora.ViewModels
     {
         private readonly CustomerService _customerService;
         private List<Customer> _allCustomers = new();
+
+        // Tracks the last calendar day we recalculated Overdue/status against.
+        // Customer is a plain model (no INotifyPropertyChanged) and its
+        // IsOverdue/FilterCategory getters compare against DateTime.Today, so
+        // nothing re-evaluates them automatically as real time passes -- only
+        // when this ViewModel re-runs ApplyFilter/LoadAsync. Without this, a
+        // customer that crosses their due date while the app just sits open
+        // never flips to "Overdue" until some unrelated Add/Edit/Delete happens
+        // to fire CustomersChanged.
+        private DateTime _lastCheckedDate = DateTime.Today;
+        private readonly DispatcherTimer _dueDateTimer;
 
         [ObservableProperty] private string searchText = "";
         [ObservableProperty] private string selectedFilter = "All";
@@ -35,6 +47,17 @@ namespace Finvora.ViewModels
         {
             _customerService = customerService;
             _customerService.CustomersChanged += OnCustomersChanged;
+
+            // Safety-net poll: catches the day rolling over while the app is left
+            // open and idle. Ticks every minute but only does real work (a
+            // refetch + re-filter) on the minute the calendar day actually changes.
+            _dueDateTimer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(1) };
+            _dueDateTimer.Tick += (_, _) => CheckForDayRollover();
+            _dueDateTimer.Start();
+
+            // Covers the more common real-world case: the app was left open
+            // overnight (or the PC slept) and the user just clicked back into it.
+            Application.Current.Activated += OnAppActivated;
 
             _ = LoadAsync();
         }
@@ -76,7 +99,7 @@ namespace Finvora.ViewModels
                 Owner = Application.Current.MainWindow
             };
             window.ShowDialog();
-        }  
+        }
 
         [RelayCommand]
         private void EditCustomer(Customer customer)
@@ -104,15 +127,23 @@ namespace Finvora.ViewModels
             // FilteredCustomers refreshes automatically via CustomersChanged.
         }
 
-        [RelayCommand]
-        private void ExportCustomer(Customer customer)
-        {
-            // Step J will replace this with a real PDF receipt (like your screenshot).
-            MessageBox.Show($"PDF receipt for {customer.FullName} is coming in a later step.", "Coming soon",
-                MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-
         private async void OnCustomersChanged(object? sender, EventArgs e) => await LoadAsync();
+
+        private void OnAppActivated(object? sender, EventArgs e) => CheckForDayRollover();
+
+        /// <summary>
+        /// If the calendar day has moved on since we last checked, re-pull and
+        /// re-filter so every card's Overdue/Complete/Active badge and the stat
+        /// cards reflect "today" correctly -- without waiting for an unrelated
+        /// Add/Edit/Delete to trigger it.
+        /// </summary>
+        private void CheckForDayRollover()
+        {
+            if (DateTime.Today == _lastCheckedDate) return;
+
+            _lastCheckedDate = DateTime.Today;
+            _ = LoadAsync();
+        }
 
         private async Task LoadAsync()
         {
@@ -161,6 +192,8 @@ namespace Finvora.ViewModels
         public void Dispose()
         {
             _customerService.CustomersChanged -= OnCustomersChanged;
+            Application.Current.Activated -= OnAppActivated;
+            _dueDateTimer.Stop();
         }
     }
 }  

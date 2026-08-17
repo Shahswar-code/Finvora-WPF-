@@ -2,6 +2,8 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Finvora.Models;
@@ -16,6 +18,15 @@ namespace Finvora.ViewModels
     public partial class DashboardViewModel : ObservableObject, IDisposable
     {
         private readonly CustomerService _customerService;
+
+        // Tracks the last calendar day we recalculated Overdue-dependent numbers
+        // against. IsOverdue is computed against DateTime.Today every time it's
+        // read, but nothing re-reads it while the app just sits open -- only
+        // CustomersChanged (Add/Edit/Delete) triggers a recompute. Without this,
+        // a customer crossing their due date overnight leaves the dashboard
+        // (Overdue count, Overdue amount, donut slice) silently stale.
+        private DateTime _lastCheckedDate = DateTime.Today;
+        private readonly DispatcherTimer _dueDateTimer;
 
         [ObservableProperty] private string businessName;
 
@@ -123,6 +134,17 @@ namespace Finvora.ViewModels
             // Refresh automatically whenever a customer is added/edited/deleted anywhere in the app.
             _customerService.CustomersChanged += OnCustomersChanged;
 
+            // Safety-net poll: catches the day rolling over while the app is left
+            // open and idle. Ticks every minute but only does real work (a
+            // refetch + recompute) on the minute the calendar day actually changes.
+            _dueDateTimer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(1) };
+            _dueDateTimer.Tick += (_, _) => CheckForDayRollover();
+            _dueDateTimer.Start();
+
+            // Covers the more common real-world case: the app was left open
+            // overnight (or the PC slept) and the user just clicked back into it.
+            Application.Current.Activated += OnAppActivated;
+
             _ = LoadDataAsync();
         }
 
@@ -140,10 +162,28 @@ namespace Finvora.ViewModels
 
         private async void OnCustomersChanged(object? sender, EventArgs e) => await LoadDataAsync();
 
+        private void OnAppActivated(object? sender, EventArgs e) => CheckForDayRollover();
+
+        /// <summary>
+        /// If the calendar day has moved on since we last checked, recompute
+        /// everything so Overdue count/amount and the donut slice reflect
+        /// "today" correctly -- without waiting for an unrelated
+        /// Add/Edit/Delete to trigger it.
+        /// </summary>
+        private void CheckForDayRollover()
+        {
+            if (DateTime.Today == _lastCheckedDate) return;
+
+            _lastCheckedDate = DateTime.Today;
+            _ = LoadDataAsync();
+        }
+
         /// <summary>
         /// Pulls every customer from the database and recomputes every number
         /// and chart on the dashboard. This is the ONLY place dashboard data
-        /// is calculated — no mock data, no background timers.
+        /// is calculated -- no mock data. (Backed by a day-rollover safety net
+        /// above, since Overdue depends on "today" and nothing else keeps this
+        /// fresh once the app is left open.)
         /// </summary>
         private async Task LoadDataAsync()
         {
@@ -237,6 +277,8 @@ namespace Finvora.ViewModels
         public void Dispose()
         {
             _customerService.CustomersChanged -= OnCustomersChanged;
+            Application.Current.Activated -= OnAppActivated;
+            _dueDateTimer.Stop();
         }
     }
 }  

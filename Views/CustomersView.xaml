@@ -324,26 +324,21 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
 
                                     <Button Grid.Column="0" Content="View" Style="{StaticResource CardActionButtonStyle}"
-                                            Background="{DynamicResource AccentSolidBrush}" Foreground="White"
-                                            Command="{Binding DataContext.ViewCustomerCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                            CommandParameter="{Binding}"/>
+            Background="{DynamicResource AccentSolidBrush}" Foreground="White"
+            Command="{Binding DataContext.ViewCustomerCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+            CommandParameter="{Binding}"/>
                                     <Button Grid.Column="1" Content="Edit" Style="{StaticResource CardActionButtonStyle}"
-                                            Background="{DynamicResource WarningBrush}" Foreground="Black"
-                                            Command="{Binding DataContext.EditCustomerCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                            CommandParameter="{Binding}"/>
+            Background="{DynamicResource WarningBrush}" Foreground="Black"
+            Command="{Binding DataContext.EditCustomerCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+            CommandParameter="{Binding}"/>
                                     <Button Grid.Column="2" Content="Delete" Style="{StaticResource CardActionButtonStyle}"
-                                            Background="{DynamicResource ErrorBrush}" Foreground="White"
-                                            Command="{Binding DataContext.DeleteCustomerCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                            CommandParameter="{Binding}"/>
-                                    <Button Grid.Column="3" Content="PDF" Style="{StaticResource CardActionButtonStyle}"
-                                            Margin="0" Background="{DynamicResource SuccessBrush}" Foreground="White"
-                                            Command="{Binding DataContext.ExportCustomerCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                            CommandParameter="{Binding}"/>
-                                </Grid>
+            Margin="0" Background="{DynamicResource ErrorBrush}" Foreground="White"
+            Command="{Binding DataContext.DeleteCustomerCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+            CommandParameter="{Binding}"/>
+                                </Grid> 
 
                             </StackPanel>
                         </Border>
