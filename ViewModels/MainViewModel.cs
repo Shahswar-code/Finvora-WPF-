@@ -9,6 +9,7 @@ namespace Finvora.ViewModels
     public partial class MainViewModel : ObservableObject
     {
         private readonly CustomerService _customerService = new();
+        private readonly InstallmentService _installmentService = new();
         private readonly SettingsService _settingsService = new();
         private readonly BackupService _backupService = new();
         private readonly SecurityService _securityService = new();
@@ -32,7 +33,7 @@ namespace Finvora.ViewModels
             {
                 new("Dashboard",     "\uE80F", () => new DashboardViewModel(BusinessName, _customerService)),
                 new("Customers",     "\uE77B", () => new CustomersViewModel(_customerService)),
-                new("Installments",  "\uE787", () => new ComingSoonViewModel("Installments")),
+               new("Installments",  "\uE787", () => new InstallmentsViewModel(_installmentService, _customerService)),
                 new("Payments",      "\uE8C7", () => new ComingSoonViewModel("Payments")),
                 new("Notifications", "\uE7E7", () => new ComingSoonViewModel("Notifications")),
                 new("Reports",       "\uE9D9", () => new ComingSoonViewModel("Reports")),

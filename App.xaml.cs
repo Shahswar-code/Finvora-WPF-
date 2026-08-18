@@ -32,6 +32,7 @@ namespace Finvora
 {
                            new EnsureAppDataFolderTask(),
                            new EnsureDatabaseTask(),
+                           new SeedInstallmentsFromLegacyCustomersTask(), 
                     // Future phases add real startup work here, e.g.:
                     // new LoadSettingsTask(),
                     // new EnsureDatabaseTask(),

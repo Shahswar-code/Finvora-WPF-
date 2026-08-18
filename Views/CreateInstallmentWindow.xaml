@@ -1,0 +1,222 @@
+﻿<Window x:Class="Finvora.Views.CreateInstallmentWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:conv="clr-namespace:Finvora.Converters"
+        Title="New Installment"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Width="600" SizeToContent="Height"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown">
+
+    <Window.Resources>
+        <conv:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+
+        <Style x:Key="FieldLabel" TargetType="TextBlock" BasedOn="{StaticResource TextCaption}">
+            <Setter Property="Margin" Value="0,0,0,5"/>
+        </Style>
+
+        <Style x:Key="FieldTextBox" TargetType="TextBox">
+            <Setter Property="Background" Value="{DynamicResource BackgroundSecondaryBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
+            <Setter Property="FontSize" Value="{StaticResource FontSizeBody}"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}"/>
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentSolidBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="FieldComboBox" TargetType="ComboBox">
+            <Setter Property="Background" Value="{DynamicResource BackgroundSecondaryBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+            <Setter Property="Padding" Value="10,8"/>
+        </Style>
+
+        <Style x:Key="FieldDatePicker" TargetType="DatePicker">
+            <Setter Property="Background" Value="{DynamicResource BackgroundSecondaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+            <Setter Property="Padding" Value="8,6"/>
+        </Style>
+
+        <Style x:Key="LinkButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentSolidBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="{StaticResource FontSizeCaption}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border Background="{DynamicResource SurfaceCardBrush}" CornerRadius="12"
+            BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Grid Grid.Row="0" Margin="24,20,24,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="New Installment" Style="{StaticResource TextHeading}"/>
+                <Button Grid.Column="1" Content="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                        Width="28" Height="28" Background="Transparent" BorderThickness="0"
+                        Foreground="{DynamicResource TextSecondaryBrush}" Cursor="Hand"
+                        Command="{Binding CancelCommand}">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+
+            <!-- Form body -->
+            <ScrollViewer Grid.Row="1" MaxHeight="560" VerticalScrollBarVisibility="Auto" Margin="24,10,32,0"
+                          Padding="0,0,8,0">
+                <StackPanel>
+
+                    <TextBlock Text="Customer" Style="{StaticResource TextSubheading}" Margin="0,4,0,12"/>
+
+                    <ComboBox ItemsSource="{Binding Customers}" SelectedItem="{Binding SelectedCustomer}"
+                              DisplayMemberPath="FullName" IsEditable="True" IsTextSearchEnabled="True"
+                              Style="{StaticResource FieldComboBox}" Margin="0,0,0,6"/>
+
+                    <Button Content="+ Add New Customer" Style="{StaticResource LinkButtonStyle}"
+                            Command="{Binding AddNewCustomerCommand}" Margin="0,0,0,16"/>
+
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="0,1,0,0" Margin="0,0,0,16"/>
+
+                    <TextBlock Text="Plan Details" Style="{StaticResource TextSubheading}" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="Item / Product *" Style="{StaticResource FieldLabel}"/>
+                    <TextBox Text="{Binding ItemName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBox}" Margin="0,0,0,12"/>
+
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Total Price *" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding TotalPriceText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBox}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Down Payment" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding DownPaymentText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBox}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <Border Background="{DynamicResource BackgroundSecondaryBrush}" CornerRadius="8" Padding="14,10" Margin="0,0,0,16">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Financed Amount" Style="{StaticResource TextCaption}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{Binding FinancedPreview, StringFormat='Rs {0:N0}'}"
+                                       Style="{StaticResource TextSubheading}" Foreground="{DynamicResource WarningBrush}"/>
+                        </Grid>
+                    </Border>
+
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Installment Amount *" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding InstallmentAmountText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBox}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Number of Installments *" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding NumberOfInstallmentsText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBox}"/>
+                        </StackPanel>
+                    </Grid>
+                    <TextBlock Text="Fill either field -- the other one is calculated for you." Style="{StaticResource TextCaption}" Margin="0,-6,0,12"/>
+
+                    <Grid Margin="0,0,0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Frequency" Style="{StaticResource FieldLabel}"/>
+                            <ComboBox ItemsSource="{Binding FrequencyOptions}" SelectedItem="{Binding Frequency}" Style="{StaticResource FieldComboBox}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="First Due Date" Style="{StaticResource FieldLabel}"/>
+                            <DatePicker SelectedDate="{Binding FirstDueDate}" Style="{StaticResource FieldDatePicker}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource ErrorBrush}"
+                               TextWrapping="Wrap" Margin="0,14,0,0"
+                               Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Footer -->
+            <Grid Grid.Row="2" Margin="24,20,24,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="1" Content="Cancel" Command="{Binding CancelCommand}"
+                        Padding="18,9" Margin="0,0,10,0" Background="Transparent"
+                        Foreground="{DynamicResource TextSecondaryBrush}" BorderThickness="1"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}" Cursor="Hand">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
+                <Button Grid.Column="2" Content="Save Installment" Command="{Binding SaveCommand}"
+                        Padding="18,9" FontWeight="SemiBold" Background="{DynamicResource AccentSolidBrush}"
+                        Foreground="White" BorderThickness="0" Cursor="Hand">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+
+        </Grid>
+    </Border>
+</Window>  
