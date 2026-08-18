@@ -43,7 +43,15 @@
   -->
 	<ItemGroup>
 		<ApplicationDefinition Remove="**\App.xaml" />
+		<Content Remove="Assets\finvora-mark.png" />
+		<Content Remove="Assets\finvora.png" />
 		<ApplicationDefinition Include="App.xaml" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Resource Include="Assets\finvora-mark.png">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Assets\finvora.png" />
 	</ItemGroup>
 
 </Project>  

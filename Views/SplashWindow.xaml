@@ -19,7 +19,7 @@
             <!-- Main content: logo, name, slogan, status text, progress bar -->
             <StackPanel Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
 
-                <Image Source="Assets/finvora-mark.png" Width="100" Height="100" Margin="0,0,0,20" Stretch="Uniform"/> 
+                <Image Source="/Finvora;component/Assets/finvora-mark.png" Width="100" Height="100" Margin="0,0,0,20" Stretch="Uniform"/> 
 
                 <TextBlock Text="FINVORA" FontWeight="Bold" FontSize="24"
                            FontFamily="{StaticResource AppFontFamily}"

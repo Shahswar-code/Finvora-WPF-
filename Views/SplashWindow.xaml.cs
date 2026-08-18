@@ -19,19 +19,6 @@ namespace Finvora.Views
             DataContext = ViewModel;
 
             Loaded += SplashWindow_Loaded;
-
-            // Diagnostic: if the logo file isn't where we expect, tell us exactly why
-            // instead of silently showing a blank space.
-            var logoPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "finvora-mark.png");
-            if (!System.IO.File.Exists(logoPath))
-            {
-                MessageBox.Show(
-                    $"Logo file not found.\n\nExpected at:\n{logoPath}\n\n" +
-                    "This means the file either isn't in your Assets folder, or the build didn't copy it. " +
-                    "Check Solution Explorer → Assets, and confirm the file's Build Action is 'Content' " +
-                    "with 'Copy to Output Directory' = 'Copy if newer'.",
-                    "Logo Missing — Diagnostic", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
         } 
 
         private void SplashWindow_Loaded(object sender, RoutedEventArgs e)
