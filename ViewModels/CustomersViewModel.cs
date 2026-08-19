@@ -10,6 +10,10 @@ using CommunityToolkit.Mvvm.Input;
 using Finvora.Models;
 using Finvora.Services;
 using Finvora.Views;
+using Microsoft.Win32;
+using PdfSharpCore;
+using PdfSharpCore.Drawing;
+using PdfSharpCore.Pdf;
 
 namespace Finvora.ViewModels
 {
@@ -85,10 +89,215 @@ namespace Finvora.ViewModels
         [RelayCommand]
         private void ExportAll()
         {
-            // Step J will replace this with real PDF export.
-            MessageBox.Show("Export All PDF is coming in a later step.", "Coming soon",
-                MessageBoxButton.OK, MessageBoxImage.Information);
+            // Exports every customer on record (not just the current filter/search
+            // results) -- "Export All" means the whole dataset, as a single
+            // multi-page tabular PDF report.
+            if (_allCustomers.Count == 0)
+            {
+                MessageBox.Show("There are no customers to export yet.", "Nothing to export",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var dialog = new SaveFileDialog
+            {
+                Title = "Export All Customers",
+                FileName = $"Finvora_Customers_{DateTime.Now:yyyyMMdd_HHmm}.pdf",
+                Filter = "PDF file (*.pdf)|*.pdf"
+            };
+
+            if (dialog.ShowDialog() != true) return;
+
+            try
+            {
+                RenderAllCustomersPdf(dialog.FileName);
+                MessageBox.Show(
+                    $"Exported {_allCustomers.Count} customer{(_allCustomers.Count == 1 ? "" : "s")} to:\n{dialog.FileName}",
+                    "Export complete", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Couldn't export: {ex.Message}", "Export failed",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
+
+        private void RenderAllCustomersPdf(string fileName)
+        {
+            var document = new PdfDocument();
+            document.Info.Title = "Finvora - All Customers";
+            document.Info.Subject = "Complete customer list";
+
+            const double margin = 30;
+            const double rowHeight = 25;
+
+            PdfPage page = document.AddPage();
+            page.Size = PageSize.A4;
+            page.Orientation = PageOrientation.Landscape;
+
+            XGraphics gfx = XGraphics.FromPdfPage(page);
+
+            var titleFont = new XFont("Arial", 18, XFontStyle.Bold);
+            var headerFont = new XFont("Arial", 9, XFontStyle.Bold);
+            var bodyFont = new XFont("Arial", 8, XFontStyle.Regular);
+
+            double y = margin;
+
+            void DrawHeader()
+            {
+                gfx.DrawString(
+                    "FINVORA - ALL CUSTOMERS",
+                    titleFont,
+                    XBrushes.Black,
+                    new XRect(margin, y, page.Width - margin * 2, 30),
+                    XStringFormats.TopLeft);
+
+                y += 35;
+
+                gfx.DrawString(
+                    $"Generated: {DateTime.Now:dd MMM yyyy hh:mm tt}",
+                    bodyFont,
+                    XBrushes.Gray,
+                    new XRect(margin, y, page.Width - margin * 2, 20),
+                    XStringFormats.TopLeft);
+
+                y += 30;
+
+                double[] widths =
+                {
+            35,   // #
+            170,  // Customer
+            100,  // CNIC
+            100,  // Phone
+            100,  // Remaining
+            80,   // Status
+            100   // Date Added
+        };
+
+                string[] headers =
+                {
+            "#",
+            "Customer",
+            "CNIC",
+            "Phone",
+            "Remaining",
+            "Status",
+            "Date Added"
+        };
+
+                double x = margin;
+
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    gfx.DrawRectangle(
+                        XBrushes.LightGray,
+                        x,
+                        y,
+                        widths[i],
+                        rowHeight);
+
+                    gfx.DrawString(
+                        headers[i],
+                        headerFont,
+                        XBrushes.Black,
+                        new XRect(x + 4, y + 6, widths[i] - 8, rowHeight),
+                        XStringFormats.TopLeft);
+
+                    x += widths[i];
+                }
+
+                y += rowHeight;
+            }
+
+            DrawHeader();
+
+            int number = 1;
+
+            foreach (var customer in _allCustomers.OrderBy(c => c.FullName))
+            {
+                // Create another page when the current page is full
+                if (y + rowHeight > page.Height - margin)
+                {
+                    gfx.Dispose();
+
+                    page = document.AddPage();
+                    page.Size = PageSize.A4;
+                    page.Orientation = PageOrientation.Landscape;
+
+                    gfx = XGraphics.FromPdfPage(page);
+
+                    y = margin;
+
+                    DrawHeader();
+                }
+
+                string status;
+
+                if (customer.IsOverdue)
+                {
+                    status = "Overdue";
+                }
+                else if (customer.RemainingBalance <= 0)
+                {
+                    status = "Complete";
+                }
+                else
+                {
+                    status = "Active";
+                }
+
+                string[] values =
+                {
+            number.ToString(),
+            customer.FullName ?? "",
+            customer.Cnic ?? "",
+            customer.Phone ?? "",
+            $"Rs {customer.RemainingBalance:N0}",
+            status,
+            customer.DateAdded.ToString("dd MMM yyyy")
+        };
+
+                double[] widths =
+                {
+            35,
+            170,
+            100,
+            100,
+            100,
+            80,
+            100
+        };
+
+                double x = margin;
+
+                for (int i = 0; i < values.Length; i++)
+                {
+                    gfx.DrawRectangle(
+                        XPens.LightGray,
+                        x,
+                        y,
+                        widths[i],
+                        rowHeight);
+
+                    gfx.DrawString(
+                        values[i],
+                        bodyFont,
+                        XBrushes.Black,
+                        new XRect(x + 4, y + 6, widths[i] - 8, rowHeight),
+                        XStringFormats.TopLeft);
+
+                    x += widths[i];
+                }
+
+                y += rowHeight;
+                number++;
+            }
+
+            gfx.Dispose();
+
+            document.Save(fileName);
+            document.Close();
+        } 
 
         [RelayCommand]
         private void ViewCustomer(Customer customer)
@@ -196,4 +405,4 @@ namespace Finvora.ViewModels
             _dueDateTimer.Stop();
         }
     }
-}  
+} 
