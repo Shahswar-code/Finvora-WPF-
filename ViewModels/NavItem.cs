@@ -15,6 +15,12 @@ namespace Finvora.ViewModels
         [ObservableProperty]
         private bool isSelected;
 
+        /// <summary>Unread-count badge shown next to the label. Only the
+        /// Notifications item sets this above zero today, but it's generic so
+        /// any future nav item can use it the same way.</summary>
+        [ObservableProperty]
+        private int badgeCount;
+
         private readonly Func<object> _pageViewModelFactory;
 
         public NavItem(string label, string glyph, Func<object> pageViewModelFactory)

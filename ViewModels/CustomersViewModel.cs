@@ -20,6 +20,7 @@ namespace Finvora.ViewModels
     public partial class CustomersViewModel : ObservableObject, IDisposable
     {
         private readonly CustomerService _customerService;
+        private readonly NotificationService _notificationService;
         private List<Customer> _allCustomers = new();
 
         // Tracks the last calendar day we recalculated Overdue/status against.
@@ -47,9 +48,10 @@ namespace Finvora.ViewModels
         [ObservableProperty] private string pendingBalance = "Rs 0";
         [ObservableProperty] private int overdueCount;
 
-        public CustomersViewModel(CustomerService customerService)
+        public CustomersViewModel(CustomerService customerService, NotificationService notificationService)
         {
             _customerService = customerService;
+            _notificationService = notificationService;
             _customerService.CustomersChanged += OnCustomersChanged;
 
             // Safety-net poll: catches the day rolling over while the app is left
@@ -78,7 +80,7 @@ namespace Finvora.ViewModels
         [RelayCommand]
         private void AddNewCustomer()
         {
-            var vm = new AddCustomerViewModel(_customerService);
+            var vm = new AddCustomerViewModel(_customerService, _notificationService);
             var window = new AddCustomerWindow(vm)
             {
                 Owner = Application.Current.MainWindow
@@ -297,7 +299,7 @@ namespace Finvora.ViewModels
 
             document.Save(fileName);
             document.Close();
-        } 
+        }
 
         [RelayCommand]
         private void ViewCustomer(Customer customer)
@@ -405,4 +407,4 @@ namespace Finvora.ViewModels
             _dueDateTimer.Stop();
         }
     }
-} 
+}  

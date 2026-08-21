@@ -9,6 +9,7 @@ namespace Finvora.Data
         public DbSet<AppSecurity> AppSecurity => Set<AppSecurity>();
         public DbSet<Installment> Installments => Set<Installment>();
         public DbSet<InstallmentSchedule> InstallmentSchedules => Set<InstallmentSchedule>();
+        public DbSet<Notification> Notifications => Set<Notification>();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

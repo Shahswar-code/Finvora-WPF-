@@ -20,6 +20,7 @@ namespace Finvora.ViewModels
     public partial class AddCustomerViewModel : ObservableObject
     {
         private readonly CustomerService _customerService;
+        private readonly NotificationService _notificationService;
 
         /// <summary>Raised when the dialog should close -- Save (success) or Cancel.</summary>
         public event Action? RequestClose;
@@ -52,9 +53,10 @@ namespace Finvora.ViewModels
         partial void OnTotalPriceTextChanged(string value) => OnPropertyChanged(nameof(RemainingPreview));
         partial void OnAdvancePaidTextChanged(string value) => OnPropertyChanged(nameof(RemainingPreview));
 
-        public AddCustomerViewModel(CustomerService customerService)
+        public AddCustomerViewModel(CustomerService customerService, NotificationService notificationService)
         {
             _customerService = customerService;
+            _notificationService = notificationService;
         }
 
         [RelayCommand]
@@ -118,6 +120,7 @@ namespace Finvora.ViewModels
             try
             {
                 await _customerService.AddAsync(customer);
+                await _notificationService.NotifyCustomerAddedAsync(customer);
                 RequestClose?.Invoke();
             }
             catch (Exception ex)
@@ -135,4 +138,4 @@ namespace Finvora.ViewModels
 
         private static decimal ParseDecimal(string s) => decimal.TryParse(s, out var v) ? v : 0;
     }
-} 
+}  

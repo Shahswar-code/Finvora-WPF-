@@ -17,6 +17,7 @@ namespace Finvora.ViewModels
     {
         private readonly InstallmentService _installmentService;
         private readonly CustomerService _customerService;
+        private readonly NotificationService _notificationService;
         private List<Installment> _allInstallments = new();
 
         // Same day-rollover safety net as CustomersViewModel -- Installment is a
@@ -41,10 +42,11 @@ namespace Finvora.ViewModels
         [ObservableProperty] private int completedCount;
         [ObservableProperty] private string totalOutstanding = "Rs 0";
 
-        public InstallmentsViewModel(InstallmentService installmentService, CustomerService customerService)
+        public InstallmentsViewModel(InstallmentService installmentService, CustomerService customerService, NotificationService notificationService)
         {
             _installmentService = installmentService;
             _customerService = customerService;
+            _notificationService = notificationService;
             _installmentService.InstallmentsChanged += OnInstallmentsChanged;
 
             _dueDateTimer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(1) };
@@ -68,7 +70,7 @@ namespace Finvora.ViewModels
         [RelayCommand]
         private void NewInstallment()
         {
-            var vm = new CreateInstallmentViewModel(_installmentService, _customerService);
+            var vm = new CreateInstallmentViewModel(_installmentService, _customerService, _notificationService);
             var window = new CreateInstallmentWindow(vm)
             {
                 Owner = Application.Current.MainWindow
@@ -154,4 +156,4 @@ namespace Finvora.ViewModels
             _dueDateTimer.Stop();
         }
     }
-} 
+}   

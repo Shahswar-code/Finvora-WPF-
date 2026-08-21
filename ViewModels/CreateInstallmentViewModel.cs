@@ -21,6 +21,7 @@ namespace Finvora.ViewModels
     {
         private readonly InstallmentService _installmentService;
         private readonly CustomerService _customerService;
+        private readonly NotificationService _notificationService;
         private bool _isSyncingPlanFields;
 
         public event Action? RequestClose;
@@ -47,10 +48,11 @@ namespace Finvora.ViewModels
         public decimal FinancedPreview =>
             Math.Max(0, ParseDecimal(TotalPriceText) - ParseDecimal(DownPaymentText));
 
-        public CreateInstallmentViewModel(InstallmentService installmentService, CustomerService customerService)
+        public CreateInstallmentViewModel(InstallmentService installmentService, CustomerService customerService, NotificationService notificationService)
         {
             _installmentService = installmentService;
             _customerService = customerService;
+            _notificationService = notificationService;
 
             _ = LoadCustomersAsync();
         }
@@ -85,7 +87,7 @@ namespace Finvora.ViewModels
         [RelayCommand]
         private void AddNewCustomer()
         {
-            var vm = new AddCustomerViewModel(_customerService);
+            var vm = new AddCustomerViewModel(_customerService, _notificationService);
             var window = new AddCustomerWindow(vm)
             {
                 Owner = Application.Current.MainWindow
@@ -204,4 +206,4 @@ namespace Finvora.ViewModels
 
         private static decimal ParseDecimal(string s) => decimal.TryParse(s, out var v) ? v : 0;
     }
-} 
+}  

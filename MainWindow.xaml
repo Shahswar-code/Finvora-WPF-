@@ -2,6 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:Finvora.ViewModels"
+        xmlns:converters="clr-namespace:Finvora.Converters"
+        xmlns:models="clr-namespace:Finvora.Models"
         Title="FINVORA"
         MinHeight="600" MinWidth="1000"
         Opacity="0"
@@ -16,6 +18,9 @@
     </Window.DataContext>
 
     <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+
         <Style x:Key="TitleBarButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="46"/>
             <Setter Property="Height" Value="36"/>
@@ -73,6 +78,16 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Command="{Binding OpenNotificationsCommand}" Style="{StaticResource TitleBarButtonStyle}"
+                            ToolTip="Notifications">
+                        <Grid>
+                            <TextBlock Text="&#xE7E7;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Ellipse Width="8" Height="8" Fill="{DynamicResource ErrorBrush}"
+                                     HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,7,0"
+                                     Visibility="{Binding UnreadNotificationCount, Converter={StaticResource CountToVisibilityConverter}}"/>
+                        </Grid>
+                    </Button>
                     <Button x:Name="MinimizeButton" Content="&#xE921;" Click="Minimize_Click" Style="{StaticResource TitleBarButtonStyle}"/>
                     <Button x:Name="MaximizeButton" Content="&#xE922;" Click="MaximizeRestore_Click" Style="{StaticResource TitleBarButtonStyle}"/>
                     <Button Content="&#xE8BB;" Click="Close_Click" Style="{StaticResource CloseButtonStyle}"/>
@@ -151,6 +166,13 @@
                                         <TextBlock Text="{Binding Glyph}" FontFamily="Segoe MDL2 Assets" FontSize="16"
                                                    VerticalAlignment="Center" Width="20"/>
                                         <TextBlock Text="{Binding Label}" Margin="12,0,0,0" VerticalAlignment="Center" FontWeight="Medium"/>
+                                        <Border Background="{DynamicResource ErrorBrush}" CornerRadius="9"
+                                                MinWidth="18" Height="18" Margin="8,0,0,0" Padding="5,0"
+                                                HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                Visibility="{Binding BadgeCount, Converter={StaticResource CountToVisibilityConverter}}">
+                                            <TextBlock Text="{Binding BadgeCount}" FontSize="10" FontWeight="Bold"
+                                                       Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
                                     </StackPanel>
                                 </Button>
                             </DataTemplate>
@@ -161,5 +183,86 @@
 
             <ContentControl Grid.Column="1" Content="{Binding CurrentPage}" Margin="28"/>
         </Grid>
+
+        <!-- ============ TOAST NOTIFICATION (slides down, holds, slides up) ============ -->
+        <Border x:Name="ToastBorder" Grid.RowSpan="2" Panel.ZIndex="1000"
+                HorizontalAlignment="Right" VerticalAlignment="Top"
+                Width="360" Margin="0,0,20,0"
+                Background="{DynamicResource SurfaceCardBrush}"
+                BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1"
+                CornerRadius="10" Padding="16"
+                Visibility="{Binding IsToastVisible, Converter={StaticResource BoolToVis}}">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="24" ShadowDepth="6" Opacity="0.35" Color="Black"/>
+            </Border.Effect>
+            <Border.RenderTransform>
+                <TranslateTransform x:Name="ToastTransform" Y="-160"/>
+            </Border.RenderTransform>
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsToastVisible}" Value="True">
+                            <DataTrigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                          To="16" Duration="0:0:0.35">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseOut"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </DataTrigger.EnterActions>
+                            <DataTrigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                         To="-160" Duration="0:0:0.3"> 
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseIn"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </DataTrigger.ExitActions>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Width="32" Height="32" CornerRadius="16"
+                        Margin="0,0,12,0" VerticalAlignment="Top">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="{DynamicResource AccentSolidBrush}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ToastType}" Value="{x:Static models:NotificationType.Overdue}">
+                                    <Setter Property="Background" Value="{DynamicResource ErrorBrush}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ToastType}" Value="{x:Static models:NotificationType.CustomerAdded}">
+                                    <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <TextBlock Text="&#xE7E7;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                               Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="{Binding ToastTitle}" FontWeight="SemiBold" FontSize="13"
+                               Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding ToastMessage}" FontSize="12" Margin="0,4,0,0"
+                               Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
-</Window> 
+</Window>  

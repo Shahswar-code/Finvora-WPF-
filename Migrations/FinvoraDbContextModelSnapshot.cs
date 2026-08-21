@@ -23,205 +23,240 @@ namespace Finvora.Migrations
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("Finvora.Models.AppSecurity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("PinHash")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("PinHash")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PinSalt")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("PinSalt")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("UpdatedAt")
+                    .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("AppSecurity");
-                });
+                b.ToTable("AppSecurity");
+            });
 
             modelBuilder.Entity("Finvora.Models.Customer", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Address")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                b.Property<string>("Address")
+                    .HasMaxLength(250)
+                    .HasColumnType("nvarchar(250)");
 
-                    b.Property<decimal>("AdvancePaid")
-                        .HasColumnType("decimal(18,2)");
+                b.Property<decimal>("AdvancePaid")
+                    .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("AmountPaid")
-                        .HasColumnType("decimal(18,2)");
+                b.Property<decimal>("AmountPaid")
+                    .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Cnic")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                b.Property<string>("Cnic")
+                    .HasMaxLength(30)
+                    .HasColumnType("nvarchar(30)");
 
-                    b.Property<DateTime>("DateAdded")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("DateAdded")
+                    .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DueDate")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("DueDate")
+                    .HasColumnType("datetime2");
 
-                    b.Property<string>("Email")
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                b.Property<string>("Email")
+                    .HasMaxLength(120)
+                    .HasColumnType("nvarchar(120)");
 
-                    b.Property<int>("Frequency")
-                        .HasColumnType("int");
+                b.Property<int>("Frequency")
+                    .HasColumnType("int");
 
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                b.Property<string>("FullName")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("nvarchar(120)");
 
-                    b.Property<decimal>("InstallmentAmount")
-                        .HasColumnType("decimal(18,2)");
+                b.Property<decimal>("InstallmentAmount")
+                    .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("ItemName")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                b.Property<string>("ItemName")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("nvarchar(150)");
 
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                b.Property<string>("Phone")
+                    .IsRequired()
+                    .HasMaxLength(30)
+                    .HasColumnType("nvarchar(30)");
 
-                    b.Property<decimal>("TotalPrice")
-                        .HasColumnType("decimal(18,2)");
+                b.Property<decimal>("TotalPrice")
+                    .HasColumnType("decimal(18,2)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("Customers");
-                });
+                b.ToTable("Customers");
+            });
 
             modelBuilder.Entity("Finvora.Models.Installment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
+                b.Property<int>("CustomerId")
+                    .HasColumnType("int");
 
-                    b.Property<DateTime>("DateAdded")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("DateAdded")
+                    .HasColumnType("datetime2");
 
-                    b.Property<decimal>("DownPayment")
-                        .HasColumnType("decimal(18,2)");
+                b.Property<decimal>("DownPayment")
+                    .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime>("FirstDueDate")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("FirstDueDate")
+                    .HasColumnType("datetime2");
 
-                    b.Property<int>("Frequency")
-                        .HasColumnType("int");
+                b.Property<int>("Frequency")
+                    .HasColumnType("int");
 
-                    b.Property<decimal>("InstallmentAmount")
-                        .HasColumnType("decimal(18,2)");
+                b.Property<decimal>("InstallmentAmount")
+                    .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("InstallmentNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                b.Property<string>("InstallmentNumber")
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .HasColumnType("nvarchar(20)");
 
-                    b.Property<bool>("IsCancelled")
-                        .HasColumnType("bit");
+                b.Property<bool>("IsCancelled")
+                    .HasColumnType("bit");
 
-                    b.Property<string>("ItemName")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                b.Property<string>("ItemName")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("nvarchar(150)");
 
-                    b.Property<int>("NumberOfInstallments")
-                        .HasColumnType("int");
+                b.Property<int>("NumberOfInstallments")
+                    .HasColumnType("int");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("StartDate")
+                    .HasColumnType("datetime2");
 
-                    b.Property<decimal>("TotalPrice")
-                        .HasColumnType("decimal(18,2)");
+                b.Property<decimal>("TotalPrice")
+                    .HasColumnType("decimal(18,2)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("CustomerId");
+                b.HasIndex("CustomerId");
 
-                    b.ToTable("Installments");
-                });
+                b.ToTable("Installments");
+            });
 
             modelBuilder.Entity("Finvora.Models.InstallmentSchedule", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
+                b.Property<decimal>("Amount")
+                    .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime>("DueDate")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("DueDate")
+                    .HasColumnType("datetime2");
 
-                    b.Property<int>("InstallmentId")
-                        .HasColumnType("int");
+                b.Property<int>("InstallmentId")
+                    .HasColumnType("int");
 
-                    b.Property<decimal>("PaidAmount")
-                        .HasColumnType("decimal(18,2)");
+                b.Property<decimal>("PaidAmount")
+                    .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime?>("PaidDate")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime?>("PaidDate")
+                    .HasColumnType("datetime2");
 
-                    b.Property<int>("SequenceNumber")
-                        .HasColumnType("int");
+                b.Property<int>("SequenceNumber")
+                    .HasColumnType("int");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("InstallmentId");
+                b.HasIndex("InstallmentId");
 
-                    b.ToTable("InstallmentSchedules");
-                });
+                b.ToTable("InstallmentSchedules");
+            });
+
+            modelBuilder.Entity("Finvora.Models.Notification", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<bool>("IsRead")
+                    .HasColumnType("bit");
+
+                b.Property<string>("Message")
+                    .IsRequired()
+                    .HasMaxLength(400)
+                    .HasColumnType("nvarchar(400)");
+
+                b.Property<int?>("RelatedCustomerId")
+                    .HasColumnType("int");
+
+                b.Property<string>("Title")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("nvarchar(150)");
+
+                b.Property<int>("Type")
+                    .HasColumnType("int");
+
+                b.HasKey("Id");
+
+                b.ToTable("Notifications");
+            });
 
             modelBuilder.Entity("Finvora.Models.Installment", b =>
-                {
-                    b.HasOne("Finvora.Models.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("Finvora.Models.Customer", "Customer")
+                    .WithMany()
+                    .HasForeignKey("CustomerId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Customer");
-                });
+                b.Navigation("Customer");
+            });
 
             modelBuilder.Entity("Finvora.Models.InstallmentSchedule", b =>
-                {
-                    b.HasOne("Finvora.Models.Installment", "Installment")
-                        .WithMany("Schedule")
-                        .HasForeignKey("InstallmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("Finvora.Models.Installment", "Installment")
+                    .WithMany("Schedule")
+                    .HasForeignKey("InstallmentId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Installment");
-                });
+                b.Navigation("Installment");
+            });
 
             modelBuilder.Entity("Finvora.Models.Installment", b =>
-                {
-                    b.Navigation("Schedule");
-                });
+            {
+                b.Navigation("Schedule");
+            });
 #pragma warning restore 612, 618
         }
     }
-}
+}   
