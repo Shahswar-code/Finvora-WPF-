@@ -120,17 +120,30 @@ namespace Finvora.ViewModels
             try
             {
                 await _customerService.AddAsync(customer);
-                await _notificationService.NotifyCustomerAddedAsync(customer);
-                RequestClose?.Invoke();
             }
             catch (Exception ex)
             {
                 ErrorMessage = $"Couldn't save: {ex.Message}";
-            }
-            finally
-            {
                 IsSaving = false;
+                return;
             }
+
+            // The customer is already saved at this point -- a notification
+            // hiccup from here on must never surface as "couldn't save" and
+            // must never stop the dialog from closing. NotificationService
+            // itself already guards its own DB calls, but this extra layer
+            // keeps the two concerns fully separate no matter what.
+            try
+            {
+                await _notificationService.NotifyCustomerAddedAsync(customer);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AddCustomerViewModel] Notification failed after successful save: {ex.Message}");
+            }
+
+            IsSaving = false;
+            RequestClose?.Invoke();
         }
 
         [RelayCommand]
@@ -138,4 +151,4 @@ namespace Finvora.ViewModels
 
         private static decimal ParseDecimal(string s) => decimal.TryParse(s, out var v) ? v : 0;
     }
-}  
+}   

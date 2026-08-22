@@ -57,4 +57,4 @@ namespace Finvora.Services
             SettingsChanged?.Invoke(this, EventArgs.Empty);
         }
     }
-}  
+}
