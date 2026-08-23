@@ -20,6 +20,7 @@ namespace Finvora.ViewModels
         private readonly BackupService _backupService = new();
         private readonly SecurityService _securityService = new();
         private readonly NotificationService _notificationService = new();
+        private readonly ThemeService _themeService = new();
 
         private readonly NavItem _notificationsNavItem;
         private readonly DispatcherTimer _overdueCheckTimer;
@@ -41,6 +42,10 @@ namespace Finvora.ViewModels
             _settingsService.Load();
             BusinessName = _settingsService.Current.BusinessName;
 
+            // Apply the last-picked theme before any page renders, so the app
+            // never flashes the default Dark Navy theme before switching.
+            _themeService.ApplyTheme(_settingsService.Current.Theme);
+
             _settingsService.SettingsChanged += OnSettingsChanged;
             _notificationService.NotificationAdded += OnNotificationAdded;
             _notificationService.NotificationsChanged += OnNotificationsChanged;
@@ -56,7 +61,7 @@ namespace Finvora.ViewModels
                 new("Payments",      "\uE8C7", () => new ComingSoonViewModel("Payments")),
                 _notificationsNavItem,
                 new("Reports",       "\uE9D9", () => new ComingSoonViewModel("Reports")),
-                new("Settings",      "\uE713", () => new SettingsViewModel(_settingsService, _backupService, _securityService)),
+                new("Settings",      "\uE713", () => new SettingsViewModel(_settingsService, _backupService, _securityService, _themeService)),
             };
 
             Navigate(NavItems[0]);
@@ -202,4 +207,4 @@ namespace Finvora.ViewModels
             Debug.WriteLine($"[Finvora Notifications] {operation}: {ex}");
         }
     }
-}
+}  

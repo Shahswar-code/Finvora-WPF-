@@ -5,10 +5,10 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources/Colors.xaml"/>
+                <ResourceDictionary Source="Resources/Themes/DarkNavyTheme.xaml"/>
                 <ResourceDictionary Source="Resources/Typography.xaml"/>
                 <ResourceDictionary Source="Resources/ViewTemplates.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
-</Application>
+</Application> 

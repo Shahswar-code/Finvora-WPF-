@@ -1,4 +1,6 @@
-﻿namespace Finvora.Models
+﻿using LiveChartsCore.Themes;
+
+namespace Finvora.Models
 {
     /// <summary>
     /// The business's own identity/profile info -- shown on the Dashboard greeting
@@ -14,5 +16,7 @@
 
         /// <summary>Prefix used everywhere money is displayed, e.g. "Rs", "$", "PKR".</summary>
         public string CurrencySymbol { get; set; } = "Rs";
+
+        public AppTheme Theme { get; set; } = AppTheme.DarkNavy;  
     }
 } 

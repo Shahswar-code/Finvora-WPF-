@@ -182,6 +182,59 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
+                        <!-- Appearance card -->
+                        <Border Background="{DynamicResource SurfaceCardBrush}" CornerRadius="10" Padding="24" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock Text="Appearance" Style="{StaticResource TextSubheading}" Margin="0,0,0,4"/>
+                                <TextBlock Text="Pick a theme -- applies instantly across the whole app."
+                   Style="{StaticResource TextCaption}" Margin="0,0,0,18"/>
+
+                                <ItemsControl ItemsSource="{Binding AvailableThemes}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button Command="{Binding DataContext.SelectThemeCommand,
+                                      RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                            CommandParameter="{Binding}"
+                            Cursor="Hand" Margin="0,0,14,14"
+                            Background="Transparent" BorderThickness="0" Padding="0">
+                                                <Button.Template>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border x:Name="SwatchBorder" Width="112" CornerRadius="10" Padding="10"
+                                        BorderThickness="2" BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                        Background="{DynamicResource BackgroundSecondaryBrush}">
+                                                            <StackPanel>
+                                                                <Border Height="48" CornerRadius="6" Background="{Binding BackgroundPreview}"
+                                                ClipToBounds="True">
+                                                                    <Border Height="8" VerticalAlignment="Bottom"
+                                                    Background="{Binding AccentPreview}"/>
+                                                                </Border>
+                                                                <TextBlock Text="{Binding DisplayName}" Style="{StaticResource TextCaption}"
+                                                   HorizontalAlignment="Center" Margin="0,8,0,0"
+                                                   TextAlignment="Center"/>
+                                                            </StackPanel>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="SwatchBorder" Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
+                                                            </Trigger>
+                                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                                <Setter TargetName="SwatchBorder" Property="BorderBrush" Value="{DynamicResource AccentSolidBrush}"/>
+                                                            </DataTrigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>  
+
                         <!-- Change PIN -->
                         <Border Grid.Column="0" Background="{DynamicResource BackgroundSecondaryBrush}" CornerRadius="8" Padding="16,14">
                             <StackPanel>

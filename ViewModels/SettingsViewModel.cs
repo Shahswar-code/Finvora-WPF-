@@ -6,20 +6,23 @@ using Finvora.Services.Startup.Tasks;
 using Finvora.Views;
 using Microsoft.Win32;
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
 namespace Finvora.ViewModels
 {
     /// <summary>
-    /// Backs the Settings page: Business Profile, Backup/Restore, and the
-    /// PIN-protected Reset All Data / Change PIN flows.
+    /// Backs the Settings page: Business Profile, Appearance (theme), Backup/Restore,
+    /// and the PIN-protected Reset All Data / Change PIN flows.
     /// </summary>
     public partial class SettingsViewModel : ObservableObject
     {
         private readonly SettingsService _settingsService;
         private readonly BackupService _backupService;
         private readonly SecurityService _securityService;
+        private readonly ThemeService _themeService;
 
         // ---------- Business Profile ----------
         [ObservableProperty] private string businessName = string.Empty;
@@ -31,11 +34,23 @@ namespace Finvora.ViewModels
         [ObservableProperty] private string saveMessage = string.Empty;
         [ObservableProperty] private bool isBusy;
 
-        public SettingsViewModel(SettingsService settingsService, BackupService backupService, SecurityService securityService)
+        // ---------- Appearance ----------
+        public ObservableCollection<ThemeOption> AvailableThemes { get; } = new()
+        {
+            new ThemeOption(AppTheme.DarkNavy,       "Dark Navy",       "#0B1120", "#8B5CF6"),
+            new ThemeOption(AppTheme.Light,          "Light",           "#F8FAFC", "#7C3AED"),
+            new ThemeOption(AppTheme.CyberDark,      "Cyber Dark",      "#05050A", "#FF00E5"),
+            new ThemeOption(AppTheme.MidnightPurple, "Midnight Purple", "#120B1F", "#EC4899"),
+            new ThemeOption(AppTheme.EmeraldForest,  "Emerald Forest",  "#0A1712", "#0D9488"),
+        };
+
+        public SettingsViewModel(SettingsService settingsService, BackupService backupService,
+            SecurityService securityService, ThemeService themeService)
         {
             _settingsService = settingsService;
             _backupService = backupService;
             _securityService = securityService;
+            _themeService = themeService;
 
             var current = _settingsService.Current;
             BusinessName = current.BusinessName;
@@ -43,6 +58,8 @@ namespace Finvora.ViewModels
             ContactPhone = current.ContactPhone;
             ContactAddress = current.ContactAddress;
             CurrencySymbol = current.CurrencySymbol;
+
+            MarkSelectedTheme(_themeService.Current);
         }
 
         [RelayCommand]
@@ -62,11 +79,41 @@ namespace Finvora.ViewModels
                 OwnerName = OwnerName.Trim(),
                 ContactPhone = ContactPhone.Trim(),
                 ContactAddress = ContactAddress.Trim(),
-                CurrencySymbol = string.IsNullOrWhiteSpace(CurrencySymbol) ? "Rs" : CurrencySymbol.Trim()
+                CurrencySymbol = string.IsNullOrWhiteSpace(CurrencySymbol) ? "Rs" : CurrencySymbol.Trim(),
+                Theme = _themeService.Current
             };
 
             _settingsService.Save(updated);
             SaveMessage = "Business profile saved.";
+        }
+
+        // ---------- Appearance ----------
+        [RelayCommand]
+        private void SelectTheme(ThemeOption option)
+        {
+            if (option.Theme == _themeService.Current) return;
+
+            _themeService.ApplyTheme(option.Theme);
+            MarkSelectedTheme(option.Theme);
+
+            var current = _settingsService.Current;
+            var updated = new BusinessSettings
+            {
+                BusinessName = current.BusinessName,
+                OwnerName = current.OwnerName,
+                ContactPhone = current.ContactPhone,
+                ContactAddress = current.ContactAddress,
+                CurrencySymbol = current.CurrencySymbol,
+                Theme = option.Theme
+            };
+
+            _settingsService.Save(updated);
+        }
+
+        private void MarkSelectedTheme(AppTheme theme)
+        {
+            foreach (var option in AvailableThemes)
+                option.IsSelected = option.Theme == theme;
         }
 
         // ---------- Backup ----------
@@ -195,4 +242,4 @@ namespace Finvora.ViewModels
             }
         }
     }
-}  
+} 
