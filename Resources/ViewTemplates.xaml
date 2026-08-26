@@ -25,6 +25,10 @@
 
     <DataTemplate DataType="{x:Type vm:NotificationsViewModel}">
         <views:NotificationsView/>
+    </DataTemplate> 
+    
+    <DataTemplate DataType="{x:Type vm:PaymentsViewModel}">
+        <views:PaymentsView/>
     </DataTemplate>
-
+    
 </ResourceDictionary> 

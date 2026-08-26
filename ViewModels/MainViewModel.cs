@@ -21,6 +21,7 @@ namespace Finvora.ViewModels
         private readonly SecurityService _securityService = new();
         private readonly NotificationService _notificationService = new();
         private readonly ThemeService _themeService = new();
+        private readonly PaymentService _paymentService;
 
         private readonly NavItem _notificationsNavItem;
         private readonly DispatcherTimer _overdueCheckTimer;

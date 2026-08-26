@@ -1,0 +1,236 @@
+﻿<UserControl x:Class="Finvora.Views.PaymentsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:Finvora.Views"
+             xmlns:converters="clr-namespace:Finvora.Converters"
+             xmlns:models="clr-namespace:Finvora.Models">
+
+    <UserControl.Resources>
+        <converters:StringEqualsConverter x:Key="StringEqualsConverter"/>
+        <converters:PascalCaseToSpacedConverter x:Key="PascalCaseToSpacedConverter"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+        <Style x:Key="FilterPillStyle" TargetType="RadioButton">
+            <Setter Property="Padding" Value="16,7"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfaceCardBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource AccentSolidBrush}"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="HeaderButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="18,10"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CardActionButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="0,8"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+        <StackPanel Margin="0,0,0,20">
+
+            <!-- Header -->
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Payments" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock Text="Track and manage all payment transactions" Style="{StaticResource TextCaption}" Margin="0,4,0,0"/>
+                </StackPanel>
+                <Button Grid.Column="1" Content="+ Record Payment" Command="{Binding RecordPaymentCommand}"
+                        Background="{DynamicResource AccentSolidBrush}" Style="{StaticResource HeaderButtonStyle}" VerticalAlignment="Top"/>
+            </Grid>
+
+            <!-- KPI cards -->
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <views:StatCardView Grid.Column="0" Title="TODAY'S COLLECTIONS" Value="{Binding TodaysCollections}"
+                                     Badge="&#xE8C7;" AccentBrush="{DynamicResource SuccessBrush}"/>
+                <views:StatCardView Grid.Column="2" Title="THIS MONTH" Value="{Binding ThisMonthCollections}"
+                                     Badge="&#xE8FD;" AccentBrush="{DynamicResource AccentSolidBrush}"/>
+                <views:StatCardView Grid.Column="4" Title="PENDING" Value="{Binding PendingPayments}"
+                                     Badge="&#xE787;" AccentBrush="{DynamicResource PartialBrush}"/>
+                <views:StatCardView Grid.Column="6" Title="OVERDUE" Value="{Binding OverduePayments}"
+                                     Badge="&#xE7BA;" AccentBrush="{DynamicResource ErrorBrush}"/>
+                <views:StatCardView Grid.Column="8" Title="TOTAL COLLECTED" Value="{Binding TotalCollected}"
+                                     Badge="&#xE825;" AccentBrush="{DynamicResource WarningBrush}"/>
+            </Grid>
+
+            <!-- Search + filters -->
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBox Grid.Column="0" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                         Padding="12,9" Background="{DynamicResource SurfaceCardBrush}"
+                         Foreground="{DynamicResource TextPrimaryBrush}" BorderThickness="1"
+                         BorderBrush="{DynamicResource BorderDefaultBrush}"
+                         Tag="Search payment ID, customer, reference..."/>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <RadioButton Content="All" GroupName="PaymentStatusFilter" Style="{StaticResource FilterPillStyle}"
+                                 Command="{Binding SetFilterCommand}" CommandParameter="All"
+                                 IsChecked="{Binding SelectedFilter, Converter={StaticResource StringEqualsConverter}, ConverterParameter=All, Mode=OneWay}"/>
+                    <RadioButton Content="Paid" GroupName="PaymentStatusFilter" Style="{StaticResource FilterPillStyle}"
+                                 Command="{Binding SetFilterCommand}" CommandParameter="Paid"
+                                 IsChecked="{Binding SelectedFilter, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Paid, Mode=OneWay}"/>
+                    <RadioButton Content="Voided" GroupName="PaymentStatusFilter" Style="{StaticResource FilterPillStyle}"
+                                 Command="{Binding SetFilterCommand}" CommandParameter="Voided"
+                                 IsChecked="{Binding SelectedFilter, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Voided, Mode=OneWay}"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Empty state -->
+            <StackPanel HorizontalAlignment="Center" Margin="0,60,0,0" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}">
+                <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="32"
+                           Foreground="{DynamicResource TextMutedBrush}" HorizontalAlignment="Center"/>
+                <TextBlock Text="No payments yet" Style="{StaticResource TextSubheading}" HorizontalAlignment="Center" Margin="0,10,0,4"/>
+                <TextBlock Text="Payment transactions will appear here after you record your first payment."
+                           Style="{StaticResource TextCaption}" HorizontalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- Payment cards -->
+            <ItemsControl ItemsSource="{Binding FilteredPayments}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Width="420" Background="{DynamicResource SurfaceCardBrush}" CornerRadius="10" Padding="18" Margin="0,0,16,16">
+                            <StackPanel>
+
+                                <!-- Top row: payment #, status badge -->
+                                <Grid Margin="0,0,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="{Binding PaymentNumber}" Style="{StaticResource TextCaption}"/>
+                                        <TextBlock Text="{Binding CustomerName}" Style="{StaticResource TextSubheading}" Margin="0,2,0,0"/>
+                                        <TextBlock Style="{StaticResource TextCaption}" Margin="0,2,0,0">
+                                            <Run Text="Installment "/><Run Text="{Binding InstallmentNumber, Mode=OneWay}"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                    <Border Grid.Column="1" CornerRadius="5" Padding="9,4" VerticalAlignment="Top">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Status}" Value="{x:Static models:PaymentTransactionStatus.Voided}">
+                                                        <Setter Property="Background" Value="{DynamicResource ErrorBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="{Binding Status}" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
+                                    </Border>
+                                </Grid>
+
+                                <!-- Amount -->
+                                <TextBlock Text="{Binding Amount, StringFormat='Rs {0:N0}'}" Style="{StaticResource TextMetric}" Margin="0,0,0,10"/>
+
+                                <!-- Method / reference / date -->
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Method" Style="{StaticResource TextCaption}"/>
+                                        <TextBlock Text="{Binding Method, Converter={StaticResource PascalCaseToSpacedConverter}}"
+                                                   Style="{StaticResource TextBody}" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="Reference" Style="{StaticResource TextCaption}"/>
+                                        <TextBlock Text="{Binding ReferenceNumber, TargetNullValue='--'}" Style="{StaticResource TextBody}" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Style="{StaticResource TextCaption}" Margin="0,0,0,14">
+                                    <Run Text="{Binding PaymentDate, StringFormat={}{0:dd MMM yyyy, hh:mm tt}, Mode=OneWay}"/>
+                                </TextBlock>
+
+                                <!-- Void reason, only when voided -->
+                                <TextBlock Text="{Binding VoidReason, StringFormat='Void reason: {0}'}" Style="{StaticResource TextCaption}"
+                                           Foreground="{DynamicResource ErrorBrush}" TextWrapping="Wrap" Margin="0,0,0,10"
+                                           Visibility="{Binding VoidReason, Converter={StaticResource StringToVisibilityConverter}}"/>
+
+                                <!-- Void action -->
+                                <Grid Visibility="{Binding CanVoid, Converter={StaticResource BoolToVis}}"> 
+                                    <Button Content="Void Payment" Style="{StaticResource CardActionButtonStyle}" Margin="0"
+                                            Background="{DynamicResource ErrorBrush}" Foreground="White"
+                                            Command="{Binding DataContext.VoidPaymentCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"/>
+                                </Grid>
+
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>  

@@ -65,5 +65,8 @@ namespace Finvora.Services
             InstallmentsChanged?.Invoke(this, EventArgs.Empty);
             return installment;
         }
+        /// <summary>Lets other services (e.g. PaymentService) signal that installment
+        /// data changed underneath them, without owning the write themselves.</summary>
+        public void RaiseChanged() => InstallmentsChanged?.Invoke(this, EventArgs.Empty);
     }
 }  
