@@ -209,7 +209,7 @@
                                 </Grid>
 
                                 <TextBlock Style="{StaticResource TextCaption}" Margin="0,0,0,14">
-                                    <Run Text="{Binding PaymentDate, StringFormat={}{0:dd MMM yyyy, hh:mm tt}, Mode=OneWay}"/>
+                                    <Run Text="{Binding PaymentDate, StringFormat={}{0:dd MMM yyyy hh:mm tt}, Mode=OneWay}"/> 
                                 </TextBlock>
 
                                 <!-- Void reason, only when voided -->

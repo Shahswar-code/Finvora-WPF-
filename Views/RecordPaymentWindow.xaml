@@ -124,11 +124,11 @@
 
                         <TextBlock Text="This customer has no outstanding installment plans." Style="{StaticResource TextCaption}"
                                    Margin="0,0,0,16"
-                                   Visibility="{Binding CustomerInstallments.Count, Converter={StaticResource CountToVisibilityConverter}, ConverterParameter=Inverse}"/>
+                                  Visibility="{Binding CustomerInstallments.Count, Converter={StaticResource CountToVisibilityConverter}, ConverterParameter=Inverse}"/>
 
                         <ComboBox ItemsSource="{Binding CustomerInstallments}" SelectedItem="{Binding SelectedInstallment}"
                                   DisplayMemberPath="InstallmentNumber" Style="{StaticResource FieldComboBox}" Margin="0,0,0,16"
-                                  Visibility="{Binding CustomerInstallments.Count, Converter={StaticResource CountToVisibilityConverter}}"/>
+                                 Visibility="{Binding HasInstallments, Converter={StaticResource BoolToVis}}"/> 
 
                         <!-- Outstanding due dates for the selected plan -->
                         <StackPanel Visibility="{Binding SelectedInstallment, Converter={StaticResource BoolToVis}, FallbackValue=Collapsed}">

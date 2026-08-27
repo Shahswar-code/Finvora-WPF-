@@ -42,6 +42,8 @@ namespace Finvora.ViewModels
         [ObservableProperty] private string errorMessage = string.Empty;
         [ObservableProperty] private bool isSaving;
         [ObservableProperty] private bool isLoadingInstallments;
+        [ObservableProperty] private bool hasInstallments;
+        [ObservableProperty] private bool hasNoInstallments; 
 
         /// <summary>Gates the amount/method/reference section in XAML so the
         /// form only asks for what it can currently act on.</summary>
@@ -63,9 +65,11 @@ namespace Finvora.ViewModels
             OutstandingRows.Clear();
             SelectedScheduleRow = null;
             ErrorMessage = string.Empty;
+            HasInstallments = false;
+            HasNoInstallments = false; 
 
             if (value is not null) _ = LoadInstallmentsAsync(value.Id);
-        }
+        } 
 
         partial void OnSelectedInstallmentChanged(Installment? value)
         {
@@ -160,8 +164,11 @@ namespace Finvora.ViewModels
             foreach (var i in installments.Where(i => !i.IsCancelled && i.OutstandingAmount > 0))
                 CustomerInstallments.Add(i);
 
+            HasInstallments = CustomerInstallments.Count > 0;
+            HasNoInstallments = CustomerInstallments.Count == 0;
+
             if (CustomerInstallments.Count == 1)
                 SelectedInstallment = CustomerInstallments[0];
-        }
+        } 
     }
 } 
