@@ -59,7 +59,7 @@ namespace Finvora.ViewModels
                 new("Dashboard",     "\uE80F", () => new DashboardViewModel(BusinessName, _customerService)),
                 new("Customers",     "\uE77B", () => new CustomersViewModel(_customerService, _notificationService)),
                 new("Installments",  "\uE787", () => new InstallmentsViewModel(_installmentService, _customerService, _notificationService)),
-                new("Payments",      "\uE8C7", () => new ComingSoonViewModel("Payments")),
+                new("Payments",      "\uE8C7", () => new PaymentsViewModel(_paymentService, _installmentService, _customerService)), 
                 _notificationsNavItem,
                 new("Reports",       "\uE9D9", () => new ComingSoonViewModel("Reports")),
                 new("Settings",      "\uE713", () => new SettingsViewModel(_settingsService, _backupService, _securityService, _themeService)),

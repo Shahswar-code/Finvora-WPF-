@@ -189,7 +189,8 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <!-- Payment details -- only shown once a due date is picked -->
+                    <!-- Payment details only shown once a due date is picked -->
+
                     <StackPanel Visibility="{Binding HasSelectedRow, Converter={StaticResource BoolToVis}}">
                         <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="0,1,0,0" Margin="0,4,0,16"/>
                         <TextBlock Text="Payment Details" Style="{StaticResource TextSubheading}" Margin="0,0,0,12"/>
