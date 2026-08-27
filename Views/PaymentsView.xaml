@@ -8,6 +8,7 @@
     <UserControl.Resources>
         <converters:StringEqualsConverter x:Key="StringEqualsConverter"/>
         <converters:PascalCaseToSpacedConverter x:Key="PascalCaseToSpacedConverter"/>
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/> 
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
         <Style x:Key="FilterPillStyle" TargetType="RadioButton">

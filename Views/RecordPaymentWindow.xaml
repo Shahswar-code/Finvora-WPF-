@@ -6,7 +6,7 @@
         Title="Record Payment"
         WindowStyle="None"
         ResizeMode="NoResize"
-        WindowStartupLocation="CenterOwner"
+        WindowStartupLocation="CenterScreen"
         AllowsTransparency="True"
         Background="Transparent"
         Width="620" SizeToContent="Height"
