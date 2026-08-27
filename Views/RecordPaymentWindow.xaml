@@ -43,6 +43,15 @@
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
             <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Foreground" Value="Black"/>
+                        <Setter Property="Background" Value="White"/>
+                        <Setter Property="Padding" Value="10,8"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style x:Key="FieldDatePicker" TargetType="DatePicker">
@@ -115,23 +124,23 @@
 
                     <TextBlock Text="Customer" Style="{StaticResource TextSubheading}" Margin="0,4,0,12"/>
                     <ComboBox ItemsSource="{Binding Customers}" SelectedItem="{Binding SelectedCustomer}"
-                              DisplayMemberPath="FullName" IsEditable="True" IsTextSearchEnabled="True"
+                              DisplayMemberPath="FullName" IsTextSearchEnabled="True"
                               Style="{StaticResource FieldComboBox}" Margin="0,0,0,16"/>
 
-                    <!-- Installment plan picker (only shows once a customer with outstanding plans is chosen) -->
-                    <StackPanel Visibility="{Binding SelectedCustomer, Converter={StaticResource BoolToVis}, FallbackValue=Collapsed}">
+                    <!-- Installment plan picker -->
+                    <StackPanel Visibility="{Binding HasSelectedCustomer, Converter={StaticResource BoolToVis}}">
                         <TextBlock Text="Installment Plan" Style="{StaticResource TextSubheading}" Margin="0,0,0,12"/>
 
                         <TextBlock Text="This customer has no outstanding installment plans." Style="{StaticResource TextCaption}"
                                    Margin="0,0,0,16"
-                                 Visibility="{Binding HasNoInstallments, Converter={StaticResource BoolToVis}}"/> 
+                                   Visibility="{Binding HasNoInstallments, Converter={StaticResource BoolToVis}}"/>
 
                         <ComboBox ItemsSource="{Binding CustomerInstallments}" SelectedItem="{Binding SelectedInstallment}"
                                   DisplayMemberPath="InstallmentNumber" Style="{StaticResource FieldComboBox}" Margin="0,0,0,16"
-                                 Visibility="{Binding HasInstallments, Converter={StaticResource BoolToVis}}"/> 
+                                  Visibility="{Binding HasInstallments, Converter={StaticResource BoolToVis}}"/>
 
                         <!-- Outstanding due dates for the selected plan -->
-                        <StackPanel Visibility="{Binding SelectedInstallment, Converter={StaticResource BoolToVis}, FallbackValue=Collapsed}">
+                        <StackPanel Visibility="{Binding HasSelectedInstallment, Converter={StaticResource BoolToVis}}">
                             <TextBlock Text="Select the due date being paid" Style="{StaticResource FieldLabel}"/>
                             <ListBox ItemsSource="{Binding OutstandingRows}" SelectedItem="{Binding SelectedScheduleRow}"
                                      BorderThickness="0" Background="Transparent" Margin="0,0,0,4"
@@ -189,8 +198,7 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <!-- Payment details only shown once a due date is picked -->
-
+                    <!-- Payment details - only shown once a due date is picked -->
                     <StackPanel Visibility="{Binding HasSelectedRow, Converter={StaticResource BoolToVis}}">
                         <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="0,1,0,0" Margin="0,4,0,16"/>
                         <TextBlock Text="Payment Details" Style="{StaticResource TextSubheading}" Margin="0,0,0,12"/>

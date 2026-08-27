@@ -119,11 +119,26 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBox Grid.Column="0" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                         Padding="12,9" Background="{DynamicResource SurfaceCardBrush}"
-                         Foreground="{DynamicResource TextPrimaryBrush}" BorderThickness="1"
-                         BorderBrush="{DynamicResource BorderDefaultBrush}"
-                         Tag="Search payment ID, customer, reference..."/>
+                <Grid Grid.Column="0">
+                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+             Padding="12,9" Background="{DynamicResource SurfaceCardBrush}"
+             Foreground="{DynamicResource TextPrimaryBrush}" BorderThickness="1"
+             BorderBrush="{DynamicResource BorderDefaultBrush}"/>
+                    <TextBlock Text="Search payment ID, customer, reference..." IsHitTestVisible="False"
+               Foreground="{DynamicResource TextMutedBrush}" Margin="12,0,0,0"
+               VerticalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SearchText}" Value="">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Grid>  
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                     <RadioButton Content="All" GroupName="PaymentStatusFilter" Style="{StaticResource FilterPillStyle}"

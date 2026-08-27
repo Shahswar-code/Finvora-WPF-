@@ -9,13 +9,6 @@ using Finvora.Services;
 
 namespace Finvora.ViewModels
 {
-    /// <summary>
-    /// Backs the Record Payment modal: Customer -> Installment plan -> a specific
-    /// outstanding due date (InstallmentSchedule row) -> amount/method/reference.
-    /// Amount defaults to that row's remaining balance and validation mirrors
-    /// PaymentService's own server-side checks, so the user sees the friendly
-    /// message immediately instead of only after a round-trip.
-    /// </summary>
     public partial class RecordPaymentViewModel : ObservableObject
     {
         private readonly PaymentService _paymentService;
@@ -42,11 +35,15 @@ namespace Finvora.ViewModels
         [ObservableProperty] private string errorMessage = string.Empty;
         [ObservableProperty] private bool isSaving;
         [ObservableProperty] private bool isLoadingInstallments;
-        [ObservableProperty] private bool hasInstallments;
-        [ObservableProperty] private bool hasNoInstallments; 
 
-        /// <summary>Gates the amount/method/reference section in XAML so the
-        /// form only asks for what it can currently act on.</summary>
+        // Plain bool flags for the UI -- BooleanToVisibilityConverter only
+        // understands true/false, never an object, so every "show this section
+        // once something is picked" binding needs one of these behind it.
+        [ObservableProperty] private bool hasSelectedCustomer;
+        [ObservableProperty] private bool hasSelectedInstallment;
+        [ObservableProperty] private bool hasInstallments;
+        [ObservableProperty] private bool hasNoInstallments;
+
         public bool HasSelectedRow => SelectedScheduleRow is not null;
 
         public RecordPaymentViewModel(PaymentService paymentService, InstallmentService installmentService, CustomerService customerService)
@@ -66,16 +63,18 @@ namespace Finvora.ViewModels
             SelectedScheduleRow = null;
             ErrorMessage = string.Empty;
             HasInstallments = false;
-            HasNoInstallments = false; 
+            HasNoInstallments = false;
+            HasSelectedCustomer = value is not null;
 
             if (value is not null) _ = LoadInstallmentsAsync(value.Id);
-        } 
+        }
 
         partial void OnSelectedInstallmentChanged(Installment? value)
         {
             OutstandingRows.Clear();
             SelectedScheduleRow = null;
             ErrorMessage = string.Empty;
+            HasSelectedInstallment = value is not null;
             if (value is null) return;
 
             foreach (var row in value.Schedule.Where(r => r.RemainingAmount > 0).OrderBy(r => r.SequenceNumber))
@@ -130,8 +129,6 @@ namespace Finvora.ViewModels
             }
             catch (InvalidOperationException ex)
             {
-                // PaymentService's own re-check (e.g. balance changed since this
-                // form loaded) -- its message is already user-friendly.
                 ErrorMessage = ex.Message;
             }
             catch (Exception)
@@ -169,6 +166,6 @@ namespace Finvora.ViewModels
 
             if (CustomerInstallments.Count == 1)
                 SelectedInstallment = CustomerInstallments[0];
-        } 
+        }
     }
 } 
