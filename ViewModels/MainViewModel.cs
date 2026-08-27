@@ -21,7 +21,7 @@ namespace Finvora.ViewModels
         private readonly SecurityService _securityService = new();
         private readonly NotificationService _notificationService = new();
         private readonly ThemeService _themeService = new();
-        private readonly PaymentService _paymentService;
+        private readonly PaymentService _paymentService; 
 
         private readonly NavItem _notificationsNavItem;
         private readonly DispatcherTimer _overdueCheckTimer;
@@ -40,6 +40,7 @@ namespace Finvora.ViewModels
 
         public MainViewModel()
         {
+            _paymentService = new PaymentService(_installmentService); 
             _settingsService.Load();
             BusinessName = _settingsService.Current.BusinessName;
 
