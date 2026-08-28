@@ -21,7 +21,8 @@ namespace Finvora.ViewModels
         private readonly SecurityService _securityService = new();
         private readonly NotificationService _notificationService = new();
         private readonly ThemeService _themeService = new();
-        private readonly PaymentService _paymentService; 
+        private readonly PaymentService _paymentService;
+        private readonly StockService _stockService = new();
 
         private readonly NavItem _notificationsNavItem;
         private readonly DispatcherTimer _overdueCheckTimer;
@@ -62,7 +63,7 @@ namespace Finvora.ViewModels
                 new("Installments",  "\uE787", () => new InstallmentsViewModel(_installmentService, _customerService, _notificationService)),
                 new("Payments",      "\uE8C7", () => new PaymentsViewModel(_paymentService, _installmentService, _customerService)), 
                 _notificationsNavItem,
-                new("Reports",       "\uE9D9", () => new ComingSoonViewModel("Reports")),
+               new("Stock Manager", "\uE719", () => new StockViewModel(_stockService)),
                 new("Settings",      "\uE713", () => new SettingsViewModel(_settingsService, _backupService, _securityService, _themeService)),
             };
 

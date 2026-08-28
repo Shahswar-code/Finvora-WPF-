@@ -1,0 +1,291 @@
+﻿<UserControl x:Class="Finvora.Views.StockView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:Finvora.Views"
+             xmlns:converters="clr-namespace:Finvora.Converters"
+             xmlns:models="clr-namespace:Finvora.Models">
+
+    <UserControl.Resources>
+        <converters:StringEqualsConverter x:Key="StringEqualsConverter"/>
+        <converters:PascalCaseToSpacedConverter x:Key="PascalCaseToSpacedConverter"/>
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+        <Style x:Key="TabPillStyle" TargetType="RadioButton">
+            <Setter Property="Padding" Value="16,7"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfaceCardBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource AccentSolidBrush}"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="HeaderButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="18,10"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="FilterComboBox" TargetType="ComboBox">
+            <Setter Property="Background" Value="{DynamicResource SurfaceCardBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+            <Setter Property="Padding" Value="10,7"/>
+            <Setter Property="Margin" Value="10,0,0,0"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Foreground" Value="Black"/>
+                        <Setter Property="Background" Value="White"/>
+                        <Setter Property="Padding" Value="10,6"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="RowActionButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="0,7"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+        <StackPanel Margin="0,0,0,20">
+
+            <!-- Header -->
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Stock Manager" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock Text="Manage inventory, stock levels and item pricing." Style="{StaticResource TextCaption}" Margin="0,4,0,0"/>
+                </StackPanel>
+                <Button Grid.Column="1" Content="+ Add New Stock" Command="{Binding AddNewStockCommand}"
+                        Background="{DynamicResource AccentSolidBrush}" Style="{StaticResource HeaderButtonStyle}" VerticalAlignment="Top"/>
+            </Grid>
+
+            <!-- KPI cards -->
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <views:StatCardView Grid.Column="0" Title="TOTAL STOCK ITEMS" Value="{Binding TotalItemsValue}"
+                                     Badge="&#xE7B8;" AccentBrush="{DynamicResource AccentSolidBrush}"/>
+                <views:StatCardView Grid.Column="2" Title="LOW STOCK" Value="{Binding LowStockValue}"
+                                     Badge="&#xE7BA;" AccentBrush="{DynamicResource WarningBrush}"/>
+                <views:StatCardView Grid.Column="4" Title="OUT OF STOCK" Value="{Binding OutOfStockValue}"
+                                     Badge="&#xE783;" AccentBrush="{DynamicResource ErrorBrush}"/>
+                <views:StatCardView Grid.Column="6" Title="TOTAL STOCK VALUE" Value="{Binding TotalStockValue}"
+                                     Badge="&#xE825;" AccentBrush="{DynamicResource SuccessBrush}"/>
+            </Grid>
+
+            <!-- Tabs -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                <RadioButton Content="{Binding AllTabLabel}" GroupName="StockTabs" Style="{StaticResource TabPillStyle}"
+                             Command="{Binding SetTabCommand}" CommandParameter="All"
+                             IsChecked="{Binding SelectedTab, Converter={StaticResource StringEqualsConverter}, ConverterParameter=All, Mode=OneWay}"/>
+                <RadioButton Content="{Binding LowTabLabel}" GroupName="StockTabs" Style="{StaticResource TabPillStyle}"
+                             Command="{Binding SetTabCommand}" CommandParameter="Low Stock"
+                             IsChecked="{Binding SelectedTab, Converter={StaticResource StringEqualsConverter}, ConverterParameter='Low Stock', Mode=OneWay}"/>
+                <RadioButton Content="{Binding OutTabLabel}" GroupName="StockTabs" Style="{StaticResource TabPillStyle}"
+                             Command="{Binding SetTabCommand}" CommandParameter="Out of Stock"
+                             IsChecked="{Binding SelectedTab, Converter={StaticResource StringEqualsConverter}, ConverterParameter='Out of Stock', Mode=OneWay}"/>
+            </StackPanel>
+
+            <!-- Search + filters -->
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0">
+                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                             Padding="12,9" Background="{DynamicResource SurfaceCardBrush}"
+                             Foreground="{DynamicResource TextPrimaryBrush}" BorderThickness="1"
+                             BorderBrush="{DynamicResource BorderDefaultBrush}"/>
+                    <TextBlock Text="Search by item name, reference #, distributor..." IsHitTestVisible="False"
+                               Foreground="{DynamicResource TextMutedBrush}" Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SearchText}" Value="">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Grid>
+
+                <ComboBox Grid.Column="1" ItemsSource="{Binding CategoryFilterOptions}" SelectedItem="{Binding SelectedCategoryFilter}"
+                          Style="{StaticResource FilterComboBox}" MinWidth="150"/>
+
+                <ComboBox Grid.Column="2" ItemsSource="{Binding ConditionFilterOptions}" SelectedItem="{Binding SelectedConditionFilter}"
+                          Style="{StaticResource FilterComboBox}" MinWidth="150">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={StaticResource PascalCaseToSpacedConverter}}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </Grid>
+
+            <!-- Empty state -->
+            <StackPanel HorizontalAlignment="Center" Margin="0,60,0,0" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}">
+                <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" FontSize="32"
+                           Foreground="{DynamicResource TextMutedBrush}" HorizontalAlignment="Center"/>
+                <TextBlock Text="No stock items yet" Style="{StaticResource TextSubheading}" HorizontalAlignment="Center" Margin="0,10,0,4"/>
+                <TextBlock Text="Add your first stock item to start managing inventory." Style="{StaticResource TextCaption}" HorizontalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- Stock cards -->
+            <ItemsControl ItemsSource="{Binding FilteredItems}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Width="360" Background="{DynamicResource SurfaceCardBrush}" CornerRadius="10" Padding="18" Margin="0,0,16,16">
+                            <StackPanel>
+
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="{Binding ItemName}" Style="{StaticResource TextSubheading}"/>
+                                        <TextBlock Text="{Binding ReferenceNumber}" Style="{StaticResource TextCaption}" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                    <Border Grid.Column="1" CornerRadius="5" Padding="9,4" VerticalAlignment="Top">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Status}" Value="{x:Static models:StockItemStatus.LowStock}">
+                                                        <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="{x:Static models:StockItemStatus.OutOfStock}">
+                                                        <Setter Property="Background" Value="{DynamicResource ErrorBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="{Binding Status, Converter={StaticResource PascalCaseToSpacedConverter}}"
+                                                   FontSize="11" FontWeight="SemiBold" Foreground="White"/>
+                                    </Border>
+                                </Grid>
+
+                                <TextBlock Style="{StaticResource TextCaption}" Margin="0,0,0,10">
+                                    <Run Text="{Binding DistributorName, Mode=OneWay}"/>
+                                    <Run Text=" - "/>
+                                    <Run Text="{Binding Condition, Converter={StaticResource PascalCaseToSpacedConverter}}"/>
+                                </TextBlock>
+
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Quantity" Style="{StaticResource TextCaption}"/>
+                                        <TextBlock Text="{Binding Quantity}" Style="{StaticResource TextBody}" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="Stock Value" Style="{StaticResource TextCaption}"/>
+                                        <TextBlock Text="{Binding StockValue, StringFormat='Rs {0:N0}'}" Style="{StaticResource TextBody}" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,14">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Dealer Price" Style="{StaticResource TextCaption}"/>
+                                        <TextBlock Text="{Binding DealerPrice, StringFormat='Rs {0:N0}'}" Style="{StaticResource TextBody}"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="Wholesale Price" Style="{StaticResource TextCaption}"/>
+                                        <TextBlock Text="{Binding WholesalePrice, StringFormat='Rs {0:N0}'}" Style="{StaticResource TextBody}"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="8"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0" Content="Edit" Style="{StaticResource RowActionButtonStyle}"
+                                            Background="{DynamicResource AccentSolidBrush}" Foreground="White"
+                                            Command="{Binding DataContext.EditStockCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"/>
+                                    <Button Grid.Column="2" Content="Archive" Style="{StaticResource RowActionButtonStyle}"
+                                            Background="Transparent" Foreground="{DynamicResource ErrorBrush}"
+                                            Command="{Binding DataContext.ArchiveStockCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"/>
+                                </Grid>
+
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl> 

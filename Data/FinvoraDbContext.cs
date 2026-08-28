@@ -11,6 +11,8 @@ namespace Finvora.Data
         public DbSet<InstallmentSchedule> InstallmentSchedules => Set<InstallmentSchedule>();
         public DbSet<Notification> Notifications => Set<Notification>();
         public DbSet<Payment> Payments => Set<Payment>();
+        public DbSet<StockItem> StockItems => Set<StockItem>();
+        public DbSet<StockMovement> StockMovements => Set<StockMovement>();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -39,6 +41,11 @@ namespace Finvora.Data
                 .WithMany()
                 .HasForeignKey(p => p.InstallmentScheduleId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // StockMovement -> StockItem is a single, direct FK with no other
+            // route into the table, so the default cascade is safe here --
+            // unlike Payments, there's no risk of the "multiple cascade paths"
+            // error from before.
         }
     }
-}  
+} 
