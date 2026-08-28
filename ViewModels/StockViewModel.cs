@@ -1,13 +1,14 @@
-﻿using System;
+﻿using Finvora.Views;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Finvora.Models;
+using Finvora.Services;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using Finvora.Models;
-using Finvora.Services;
 
 namespace Finvora.ViewModels
 {
@@ -65,19 +66,18 @@ namespace Finvora.ViewModels
         [RelayCommand]
         private void AddNewStock()
         {
-            // Stage 3 replaces this with the real Add Stock dialog.
-            MessageBox.Show("The Add New Stock form is coming in the next step.", "Coming soon",
-                MessageBoxButton.OK, MessageBoxImage.Information);
+            var vm = new StockFormViewModel(_stockService);
+            var window = new StockFormWindow(vm) { Owner = Application.Current.MainWindow };
+            window.ShowDialog();
         }
 
         [RelayCommand]
         private void EditStock(StockItem item)
         {
-            // Stage 3 replaces this with the real Edit Stock dialog,
-            // pre-loaded with this exact item's data.
-            MessageBox.Show($"Edit form for {item.ItemName} is coming in the next step.", "Coming soon",
-                MessageBoxButton.OK, MessageBoxImage.Information);
-        }
+            var vm = new StockFormViewModel(_stockService, item);
+            var window = new StockFormWindow(vm) { Owner = Application.Current.MainWindow };
+            window.ShowDialog();
+        }  
 
         [RelayCommand]
         private async Task ArchiveStock(StockItem item)

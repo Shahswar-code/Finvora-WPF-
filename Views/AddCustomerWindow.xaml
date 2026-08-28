@@ -40,7 +40,16 @@
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
             <Setter Property="Padding" Value="10,8"/>
-        </Style>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Foreground" Value="Black"/>
+                        <Setter Property="Background" Value="White"/>
+                        <Setter Property="Padding" Value="10,8"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style> 
 
         <Style x:Key="FieldDatePicker" TargetType="DatePicker">
             <Setter Property="Background" Value="{DynamicResource BackgroundSecondaryBrush}"/>
@@ -116,9 +125,22 @@
 
                     <TextBlock Text="Plan Details" Style="{StaticResource TextSubheading}" Margin="0,0,0,12"/>
 
+                    <TextBlock Text="Select from Stock (optional)" Style="{StaticResource FieldLabel}"/>
+                    <ComboBox ItemsSource="{Binding StockItems}" SelectedItem="{Binding SelectedStockItem}"
+                              Style="{StaticResource FieldComboBox}" Margin="0,0,0,8">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding ItemName}"/>
+                                    <TextBlock Text="{Binding Quantity, StringFormat=' (Stock: {0})'}" Foreground="Gray"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
                     <TextBlock Text="Item(s) *" Style="{StaticResource FieldLabel}"/>
                     <TextBox Text="{Binding ItemName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBox}" Margin="0,0,0,12"/>
-
+                    
                     <Grid Margin="0,0,0,12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>

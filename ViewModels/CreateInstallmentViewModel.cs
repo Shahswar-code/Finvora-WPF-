@@ -12,23 +12,24 @@ using Finvora.Views;
 namespace Finvora.ViewModels
 {
     /// <summary>
-    /// Backs the "New Installment" dialog. Step 1 (pick/add customer) and Step 3
-    /// (payment plan) from the spec, combined into one screen for Phase 1 --
-    /// Step 2 (separate product/SKU/discount fields) is folded into a single
-    /// ItemName for now, matching how the Customer module already works.
+    /// Backs the "New Installment" dialog. Same optional stock-picker pattern
+    /// as AddCustomerViewModel -- see that file for the reasoning.
     /// </summary>
     public partial class CreateInstallmentViewModel : ObservableObject
     {
         private readonly InstallmentService _installmentService;
         private readonly CustomerService _customerService;
         private readonly NotificationService _notificationService;
+        private readonly StockService _stockService;
         private bool _isSyncingPlanFields;
 
         public event Action? RequestClose;
 
         public ObservableCollection<Customer> Customers { get; } = new();
+        public ObservableCollection<StockItem> StockItems { get; } = new();
 
         [ObservableProperty] private Customer? selectedCustomer;
+        [ObservableProperty] private StockItem? selectedStockItem;
 
         [ObservableProperty] private string itemName = string.Empty;
         [ObservableProperty] private string totalPriceText = string.Empty;
@@ -48,17 +49,26 @@ namespace Finvora.ViewModels
         public decimal FinancedPreview =>
             Math.Max(0, ParseDecimal(TotalPriceText) - ParseDecimal(DownPaymentText));
 
-        public CreateInstallmentViewModel(InstallmentService installmentService, CustomerService customerService, NotificationService notificationService)
+        public CreateInstallmentViewModel(InstallmentService installmentService, CustomerService customerService, NotificationService notificationService, StockService stockService)
         {
             _installmentService = installmentService;
             _customerService = customerService;
             _notificationService = notificationService;
+            _stockService = stockService;
 
             _ = LoadCustomersAsync();
+            _ = LoadStockItemsAsync();
         }
 
         partial void OnTotalPriceTextChanged(string value) => OnPropertyChanged(nameof(FinancedPreview));
         partial void OnDownPaymentTextChanged(string value) => OnPropertyChanged(nameof(FinancedPreview));
+
+        partial void OnSelectedStockItemChanged(StockItem? value)
+        {
+            if (value is null) return;
+            ItemName = value.ItemName;
+            TotalPriceText = value.DealerPrice.ToString("0.##");
+        }
 
         // Whichever field the user edits last drives the other -- guarded so
         // setting one from the other doesn't bounce back and forth forever.
@@ -87,7 +97,7 @@ namespace Finvora.ViewModels
         [RelayCommand]
         private void AddNewCustomer()
         {
-            var vm = new AddCustomerViewModel(_customerService, _notificationService);
+            var vm = new AddCustomerViewModel(_customerService, _notificationService, _stockService);
             var window = new AddCustomerWindow(vm)
             {
                 Owner = Application.Current.MainWindow
@@ -143,6 +153,16 @@ namespace Finvora.ViewModels
                 return;
             }
 
+            if (SelectedStockItem is not null)
+            {
+                var freshItem = await _stockService.GetByIdAsync(SelectedStockItem.Id);
+                if (freshItem is null || freshItem.Quantity < 1)
+                {
+                    ErrorMessage = "Insufficient stock. This item is no longer available.";
+                    return;
+                }
+            }
+
             var financed = Math.Max(0, totalPrice - downPayment);
 
             var installment = new Installment
@@ -165,16 +185,29 @@ namespace Finvora.ViewModels
             try
             {
                 await _installmentService.CreateAsync(installment);
-                RequestClose?.Invoke();
             }
             catch (Exception ex)
             {
                 ErrorMessage = $"Couldn't save: {ex.Message}";
-            }
-            finally
-            {
                 IsSaving = false;
+                return;
             }
+
+            if (SelectedStockItem is not null)
+            {
+                try
+                {
+                    await _stockService.DeductStockAsync(
+                        SelectedStockItem.Id, 1, "Installment", installment.Id, $"Sold to {SelectedCustomer.FullName}");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[CreateInstallmentViewModel] Stock deduction failed after successful save: {ex.Message}");
+                }
+            }
+
+            IsSaving = false;
+            RequestClose?.Invoke();
         }
 
         [RelayCommand]
@@ -202,6 +235,14 @@ namespace Finvora.ViewModels
             {
                 SelectedCustomer = Customers.FirstOrDefault(c => c.Id == previouslySelectedId.Value);
             }
+        }
+
+        private async Task LoadStockItemsAsync()
+        {
+            var items = await _stockService.GetAllAsync();
+            StockItems.Clear();
+            foreach (var item in items.Where(i => i.Quantity > 0).OrderBy(i => i.ItemName))
+                StockItems.Add(item);
         }
 
         private static decimal ParseDecimal(string s) => decimal.TryParse(s, out var v) ? v : 0;

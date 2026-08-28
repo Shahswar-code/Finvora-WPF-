@@ -5,6 +5,7 @@ using Finvora.Services;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -12,15 +13,17 @@ namespace Finvora.ViewModels
 {
     /// <summary>
     /// Backs the Add New Customer modal. Customer + their first installment plan
-    /// are captured together in one form, per the confirmed scope. All numeric
-    /// fields are bound as text (not decimal) so the TextBox can hold an empty or
-    /// in-progress value like "12." without fighting the binding -- parsing and
-    /// validation happen once, on Save.
+    /// are captured together in one form. Picking a stock item is optional --
+    /// it just pre-fills ItemName/TotalPrice from inventory; typing a plan
+    /// description by hand (the original behavior) still works unchanged.
+    /// One unit is deducted from stock on successful save, since a plan here
+    /// always represents selling exactly one item.
     /// </summary>
     public partial class AddCustomerViewModel : ObservableObject
     {
         private readonly CustomerService _customerService;
         private readonly NotificationService _notificationService;
+        private readonly StockService _stockService;
 
         /// <summary>Raised when the dialog should close -- Save (success) or Cancel.</summary>
         public event Action? RequestClose;
@@ -33,6 +36,7 @@ namespace Finvora.ViewModels
         [ObservableProperty] private string address = string.Empty;
 
         // ---------- Section 2: Plan info ----------
+        [ObservableProperty] private StockItem? selectedStockItem;
         [ObservableProperty] private string itemName = string.Empty;
         [ObservableProperty] private string totalPriceText = string.Empty;
         [ObservableProperty] private string advancePaidText = "0";
@@ -46,6 +50,11 @@ namespace Finvora.ViewModels
         public ObservableCollection<PlanFrequency> FrequencyOptions { get; } =
             new(Enum.GetValues<PlanFrequency>());
 
+        /// <summary>In-stock items only -- out-of-stock items are filtered out
+        /// entirely rather than shown disabled, per the simpler of the two
+        /// options for preventing an out-of-stock sale.</summary>
+        public ObservableCollection<StockItem> StockItems { get; } = new();
+
         /// <summary>Live "Remaining" preview shown in the form -- Total minus Advance, never negative.</summary>
         public decimal RemainingPreview =>
             Math.Max(0, ParseDecimal(TotalPriceText) - ParseDecimal(AdvancePaidText));
@@ -53,10 +62,22 @@ namespace Finvora.ViewModels
         partial void OnTotalPriceTextChanged(string value) => OnPropertyChanged(nameof(RemainingPreview));
         partial void OnAdvancePaidTextChanged(string value) => OnPropertyChanged(nameof(RemainingPreview));
 
-        public AddCustomerViewModel(CustomerService customerService, NotificationService notificationService)
+        /// <summary>Picking a stock item pre-fills the name and a starting
+        /// price -- both stay editable afterward, this is just a shortcut.</summary>
+        partial void OnSelectedStockItemChanged(StockItem? value)
+        {
+            if (value is null) return;
+            ItemName = value.ItemName;
+            TotalPriceText = value.DealerPrice.ToString("0.##");
+        }
+
+        public AddCustomerViewModel(CustomerService customerService, NotificationService notificationService, StockService stockService)
         {
             _customerService = customerService;
             _notificationService = notificationService;
+            _stockService = stockService;
+
+            _ = LoadStockItemsAsync();
         }
 
         [RelayCommand]
@@ -99,6 +120,18 @@ namespace Finvora.ViewModels
                 return;
             }
 
+            // Re-check stock is still available right before saving -- basic
+            // guard in case someone else sold the last unit in the meantime.
+            if (SelectedStockItem is not null)
+            {
+                var freshItem = await _stockService.GetByIdAsync(SelectedStockItem.Id);
+                if (freshItem is null || freshItem.Quantity < 1)
+                {
+                    ErrorMessage = "Insufficient stock. This item is no longer available.";
+                    return;
+                }
+            }
+
             var customer = new Customer
             {
                 FullName = FullName.Trim(),
@@ -128,11 +161,9 @@ namespace Finvora.ViewModels
                 return;
             }
 
-            // The customer is already saved at this point -- a notification
-            // hiccup from here on must never surface as "couldn't save" and
-            // must never stop the dialog from closing. NotificationService
-            // itself already guards its own DB calls, but this extra layer
-            // keeps the two concerns fully separate no matter what.
+            // The customer is already saved at this point -- neither a
+            // notification hiccup nor a stock hiccup from here on should
+            // surface as "couldn't save" or stop the dialog from closing.
             try
             {
                 await _notificationService.NotifyCustomerAddedAsync(customer);
@@ -142,6 +173,19 @@ namespace Finvora.ViewModels
                 System.Diagnostics.Debug.WriteLine($"[AddCustomerViewModel] Notification failed after successful save: {ex.Message}");
             }
 
+            if (SelectedStockItem is not null)
+            {
+                try
+                {
+                    await _stockService.DeductStockAsync(
+                        SelectedStockItem.Id, 1, "Customer", customer.Id, $"Sold to {customer.FullName}");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AddCustomerViewModel] Stock deduction failed after successful save: {ex.Message}");
+                }
+            }
+
             IsSaving = false;
             RequestClose?.Invoke();
         }
@@ -149,6 +193,14 @@ namespace Finvora.ViewModels
         [RelayCommand]
         private void Cancel() => RequestClose?.Invoke();
 
+        private async Task LoadStockItemsAsync()
+        {
+            var items = await _stockService.GetAllAsync();
+            StockItems.Clear();
+            foreach (var item in items.Where(i => i.Quantity > 0).OrderBy(i => i.ItemName))
+                StockItems.Add(item);
+        }
+
         private static decimal ParseDecimal(string s) => decimal.TryParse(s, out var v) ? v : 0;
     }
-}   
+} 

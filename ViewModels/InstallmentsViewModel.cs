@@ -18,7 +18,8 @@ namespace Finvora.ViewModels
         private readonly InstallmentService _installmentService;
         private readonly CustomerService _customerService;
         private readonly NotificationService _notificationService;
-        private List<Installment> _allInstallments = new();
+        private readonly StockService _stockService;
+        private List<Installment> _allInstallments = new(); 
 
         // Same day-rollover safety net as CustomersViewModel -- Installment is a
         // plain model whose Status/DaysOverdue getters compare against
@@ -42,13 +43,12 @@ namespace Finvora.ViewModels
         [ObservableProperty] private int completedCount;
         [ObservableProperty] private string totalOutstanding = "Rs 0";
 
-        public InstallmentsViewModel(InstallmentService installmentService, CustomerService customerService, NotificationService notificationService)
+        public InstallmentsViewModel(InstallmentService installmentService, CustomerService customerService, NotificationService notificationService, StockService stockService)
         {
             _installmentService = installmentService;
             _customerService = customerService;
             _notificationService = notificationService;
-            _installmentService.InstallmentsChanged += OnInstallmentsChanged;
-
+            _stockService = stockService;
             _dueDateTimer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(1) };
             _dueDateTimer.Tick += (_, _) => CheckForDayRollover();
             _dueDateTimer.Start();
@@ -70,7 +70,7 @@ namespace Finvora.ViewModels
         [RelayCommand]
         private void NewInstallment()
         {
-            var vm = new CreateInstallmentViewModel(_installmentService, _customerService, _notificationService);
+            var vm = new CreateInstallmentViewModel(_installmentService, _customerService, _notificationService, _stockService );
             var window = new CreateInstallmentWindow(vm)
             {
                 Owner = Application.Current.MainWindow

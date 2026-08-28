@@ -59,8 +59,8 @@ namespace Finvora.ViewModels
             NavItems = new ObservableCollection<NavItem>
             {
                 new("Dashboard",     "\uE80F", () => new DashboardViewModel(BusinessName, _customerService)),
-                new("Customers",     "\uE77B", () => new CustomersViewModel(_customerService, _notificationService)),
-                new("Installments",  "\uE787", () => new InstallmentsViewModel(_installmentService, _customerService, _notificationService)),
+               new("Customers",     "\uE77B", () => new CustomersViewModel(_customerService, _notificationService, _stockService)),
+              new("Installments",  "\uE787", () => new InstallmentsViewModel(_installmentService, _customerService, _notificationService, _stockService)), 
                 new("Payments",      "\uE8C7", () => new PaymentsViewModel(_paymentService, _installmentService, _customerService)), 
                 _notificationsNavItem,
                new("Stock Manager", "\uE719", () => new StockViewModel(_stockService)),

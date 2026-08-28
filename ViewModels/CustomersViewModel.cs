@@ -21,6 +21,7 @@ namespace Finvora.ViewModels
     {
         private readonly CustomerService _customerService;
         private readonly NotificationService _notificationService;
+        private readonly StockService _stockService; 
         private List<Customer> _allCustomers = new();
 
         // Tracks the last calendar day we recalculated Overdue/status against.
@@ -48,11 +49,11 @@ namespace Finvora.ViewModels
         [ObservableProperty] private string pendingBalance = "Rs 0";
         [ObservableProperty] private int overdueCount;
 
-        public CustomersViewModel(CustomerService customerService, NotificationService notificationService)
+        public CustomersViewModel(CustomerService customerService, NotificationService notificationService, StockService stockService)
         {
             _customerService = customerService;
             _notificationService = notificationService;
-            _customerService.CustomersChanged += OnCustomersChanged;
+            _stockService = stockService; 
 
             // Safety-net poll: catches the day rolling over while the app is left
             // open and idle. Ticks every minute but only does real work (a
@@ -80,7 +81,7 @@ namespace Finvora.ViewModels
         [RelayCommand]
         private void AddNewCustomer()
         {
-            var vm = new AddCustomerViewModel(_customerService, _notificationService);
+            var vm = new AddCustomerViewModel(_customerService, _notificationService, _stockService); 
             var window = new AddCustomerWindow(vm)
             {
                 Owner = Application.Current.MainWindow
