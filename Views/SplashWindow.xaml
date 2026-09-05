@@ -26,7 +26,7 @@
                            Foreground="{DynamicResource TextPrimaryBrush}"
                            HorizontalAlignment="Center"/>
 
-                <TextBlock Text="INSTALLMENTS BUSINESS SUITE" Style="{StaticResource TextCaption}"
+                <TextBlock Text="BUSINESS MANAGEMENT SUITE" Style="{StaticResource TextCaption}"
                            HorizontalAlignment="Center" Margin="0,6,0,34"/>
 
                 <TextBlock Text="{Binding StatusText}" Style="{StaticResource TextCaption}"

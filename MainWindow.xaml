@@ -110,7 +110,7 @@
                         <StackPanel Margin="10,0,0,0">
                             <TextBlock Text="FINVORA" FontWeight="Bold" FontSize="16"
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
-                            <TextBlock Text="Business Suite" Style="{StaticResource TextCaption}"/>
+                            <TextBlock Text="Business Managment Suite" Style="{StaticResource TextCaption}"/>
                         </StackPanel>
                     </StackPanel>
 

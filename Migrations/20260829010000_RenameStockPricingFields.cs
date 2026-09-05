@@ -1,10 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Finvora.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Finvora.Migrations
 {
     /// <inheritdoc />
+    [DbContext(typeof(FinvoraDbContext))]
+    [Migration("20260829010000_RenameStockPricingFields")]
     public partial class RenameStockPricingFields : Migration
     {
         /// <inheritdoc />
