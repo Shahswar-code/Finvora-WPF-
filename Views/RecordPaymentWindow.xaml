@@ -39,20 +39,6 @@
         </Style>
 
         <Style x:Key="FieldComboBox" TargetType="ComboBox" BasedOn="{StaticResource AppComboBoxBaseStyle}"/> 
-            <Setter Property="Background" Value="{DynamicResource BackgroundSecondaryBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
-            <Setter Property="Padding" Value="10,8"/>
-            <Setter Property="ItemContainerStyle">
-                <Setter.Value>
-                    <Style TargetType="ComboBoxItem">
-                        <Setter Property="Foreground" Value="Black"/>
-                        <Setter Property="Background" Value="White"/>
-                        <Setter Property="Padding" Value="10,8"/>
-                    </Style>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <Style x:Key="FieldDatePicker" TargetType="DatePicker">
             <Setter Property="Background" Value="{DynamicResource BackgroundSecondaryBrush}"/>

@@ -113,7 +113,7 @@
 
                     <TextBlock Text="Plan Details" Style="{StaticResource TextSubheading}" Margin="0,0,0,12"/>
 
-                    <TextBlock Text="Select from Stock (optional)" Style="{StaticResource FieldLabel}"/>
+                    <TextBlock Text="Select from Stock " Style="{StaticResource FieldLabel}"/>
                     <ComboBox ItemsSource="{Binding StockItems}" SelectedItem="{Binding SelectedStockItem}"
                               Style="{StaticResource FieldComboBox}" Margin="0,0,0,8">
                         <ComboBox.ItemTemplate>
