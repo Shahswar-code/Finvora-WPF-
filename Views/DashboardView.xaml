@@ -37,7 +37,7 @@
                         </Button.Template>
                     </Button>
                     <ComboBox ItemsSource="{Binding Periods}" SelectedItem="{Binding SelectedPeriod}"
-                              Width="120" Padding="8,6"/>
+          Style="{StaticResource AppComboBoxBaseStyle}" Width="120" Padding="8,6"/> 
                 </StackPanel>
             </Grid>
 

@@ -51,21 +51,10 @@
             </Setter>
         </Style>
 
-        <Style x:Key="FilterComboBox" TargetType="ComboBox">
+        <Style x:Key="FilterComboBox" TargetType="ComboBox" BasedOn="{StaticResource AppComboBoxBaseStyle}">
             <Setter Property="Background" Value="{DynamicResource SurfaceCardBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
             <Setter Property="Padding" Value="10,7"/>
             <Setter Property="Margin" Value="10,0,0,0"/>
-            <Setter Property="ItemContainerStyle">
-                <Setter.Value>
-                    <Style TargetType="ComboBoxItem">
-                        <Setter Property="Foreground" Value="Black"/>
-                        <Setter Property="Background" Value="White"/>
-                        <Setter Property="Padding" Value="10,6"/>
-                    </Style>
-                </Setter.Value>
-            </Setter>
         </Style>
 
         <Style x:Key="RowActionButtonStyle" TargetType="Button">
@@ -259,8 +248,8 @@
                                         <TextBlock Text="{Binding DealerPrice, StringFormat='Rs {0:N0}'}" Style="{StaticResource TextBody}"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1">
-                                        <TextBlock Text="Wholesale Price" Style="{StaticResource TextCaption}"/>
-                                        <TextBlock Text="{Binding WholesalePrice, StringFormat='Rs {0:N0}'}" Style="{StaticResource TextBody}"/>
+                                        <TextBlock Text="End User Price" Style="{StaticResource TextCaption}"/>
+                                        <TextBlock Text="{Binding EndUserPrice, StringFormat='Rs {0:N0}'}" Style="{StaticResource TextBody}"/>
                                     </StackPanel>
                                 </Grid>
 

@@ -29,7 +29,6 @@ namespace Finvora.ViewModels
 
         // ---------- Distributor / importer ----------
         [ObservableProperty] private string distributorName = string.Empty;
-        [ObservableProperty] private string contactPerson = string.Empty;
         [ObservableProperty] private string distributorPhone = string.Empty;
         [ObservableProperty] private string distributorEmail = string.Empty;
         [ObservableProperty] private string distributorAddress = string.Empty;
@@ -43,7 +42,7 @@ namespace Finvora.ViewModels
         [ObservableProperty] private string quantityText = "0";
         [ObservableProperty] private string minimumStockText = "0";
         [ObservableProperty] private string dealerPriceText = string.Empty;
-        [ObservableProperty] private string wholesalePriceText = string.Empty;
+        [ObservableProperty] private string endUserPriceText = string.Empty;
         [ObservableProperty] private string description = string.Empty;
 
         [ObservableProperty] private string errorMessage = string.Empty;
@@ -80,7 +79,6 @@ namespace Finvora.ViewModels
             _editingItemId = itemToEdit.Id;
 
             DistributorName = itemToEdit.DistributorName;
-            ContactPerson = itemToEdit.ContactPerson ?? string.Empty;
             DistributorPhone = itemToEdit.DistributorPhone ?? string.Empty;
             DistributorEmail = itemToEdit.DistributorEmail ?? string.Empty;
             DistributorAddress = itemToEdit.DistributorAddress ?? string.Empty;
@@ -93,7 +91,7 @@ namespace Finvora.ViewModels
             QuantityText = itemToEdit.Quantity.ToString();
             MinimumStockText = itemToEdit.MinimumStock.ToString();
             DealerPriceText = itemToEdit.DealerPrice.ToString("0.##");
-            WholesalePriceText = itemToEdit.WholesalePrice.ToString("0.##");
+            EndUserPriceText = itemToEdit.EndUserPrice.ToString("0.##");
             Description = itemToEdit.Description ?? string.Empty;
         }
 
@@ -123,9 +121,9 @@ namespace Finvora.ViewModels
                 return;
             }
 
-            if (!decimal.TryParse(WholesalePriceText, out var wholesalePrice) || wholesalePrice < 0)
+            if (!decimal.TryParse(EndUserPriceText, out var endUserPrice) || endUserPrice < 0)
             {
-                ErrorMessage = "Wholesale Price is required.";
+                ErrorMessage = "End User Price is required.";
                 return;
             }
 
@@ -133,7 +131,6 @@ namespace Finvora.ViewModels
             {
                 Id = _editingItemId ?? 0,
                 DistributorName = DistributorName.Trim(),
-                ContactPerson = string.IsNullOrWhiteSpace(ContactPerson) ? null : ContactPerson.Trim(),
                 DistributorPhone = string.IsNullOrWhiteSpace(DistributorPhone) ? null : DistributorPhone.Trim(),
                 DistributorEmail = string.IsNullOrWhiteSpace(DistributorEmail) ? null : DistributorEmail.Trim(),
                 DistributorAddress = string.IsNullOrWhiteSpace(DistributorAddress) ? null : DistributorAddress.Trim(),
@@ -145,7 +142,7 @@ namespace Finvora.ViewModels
                 Quantity = quantity,
                 MinimumStock = minimumStock,
                 DealerPrice = dealerPrice,
-                WholesalePrice = wholesalePrice,
+                EndUserPrice = endUserPrice,
                 Description = string.IsNullOrWhiteSpace(Description) ? null : Description.Trim()
             };
 
@@ -179,4 +176,4 @@ namespace Finvora.ViewModels
         private static int ParseInt(string s) => int.TryParse(s, out var v) ? v : 0;
         private static decimal ParseDecimal(string s) => decimal.TryParse(s, out var v) ? v : 0;
     }
-}  
+} 

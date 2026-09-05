@@ -38,7 +38,7 @@
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="FieldComboBox" TargetType="ComboBox">
+        <Style x:Key="FieldComboBox" TargetType="ComboBox" BasedOn="{StaticResource AppComboBoxBaseStyle}"/> 
             <Setter Property="Background" Value="{DynamicResource BackgroundSecondaryBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
@@ -130,10 +130,6 @@
                     <!-- Installment plan picker -->
                     <StackPanel Visibility="{Binding HasSelectedCustomer, Converter={StaticResource BoolToVis}}">
                         <TextBlock Text="Installment Plan" Style="{StaticResource TextSubheading}" Margin="0,0,0,12"/>
-
-                        <TextBlock Text="This customer has no outstanding installment plans." Style="{StaticResource TextCaption}"
-                                   Margin="0,0,0,16"
-                                   Visibility="{Binding HasNoInstallments, Converter={StaticResource BoolToVis}}"/>
 
                         <ComboBox ItemsSource="{Binding CustomerInstallments}" SelectedItem="{Binding SelectedInstallment}"
                                   DisplayMemberPath="InstallmentNumber" Style="{StaticResource FieldComboBox}" Margin="0,0,0,16"

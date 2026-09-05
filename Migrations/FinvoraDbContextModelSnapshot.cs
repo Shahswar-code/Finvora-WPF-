@@ -291,84 +291,80 @@ namespace Finvora.Migrations
                 });
 
             modelBuilder.Entity("Finvora.Models.StockItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Category")
-                        .HasMaxLength(60)
-                        .HasColumnType("nvarchar(60)");
+                b.Property<string>("Category")
+                    .HasMaxLength(60)
+                    .HasColumnType("nvarchar(60)");
 
-                    b.Property<int>("Condition")
-                        .HasColumnType("int");
+                b.Property<int>("Condition")
+                    .HasColumnType("int");
 
-                    b.Property<string>("ContactPerson")
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)");
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                b.Property<decimal>("DealerPrice")
+                    .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("DealerPrice")
-                        .HasColumnType("decimal(18,2)");
+                b.Property<string>("Description")
+                    .HasMaxLength(500)
+                    .HasColumnType("nvarchar(500)");
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                b.Property<string>("DistributorAddress")
+                    .HasMaxLength(200)
+                    .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("DistributorAddress")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                b.Property<string>("DistributorEmail")
+                    .HasMaxLength(100)
+                    .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("DistributorEmail")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                b.Property<string>("DistributorName")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("nvarchar(120)");
 
-                    b.Property<string>("DistributorName")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                b.Property<string>("DistributorPhone")
+                    .HasMaxLength(30)
+                    .HasColumnType("nvarchar(30)");
 
-                    b.Property<string>("DistributorPhone")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                b.Property<decimal>("EndUserPrice")
+                    .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("ImporterReference")
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                b.Property<string>("ImporterReference")
+                    .HasMaxLength(40)
+                    .HasColumnType("nvarchar(40)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                b.Property<bool>("IsActive")
+                    .HasColumnType("bit");
 
-                    b.Property<string>("ItemName")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                b.Property<string>("ItemName")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("nvarchar(120)");
 
-                    b.Property<int>("MinimumStock")
-                        .HasColumnType("int");
+                b.Property<int>("MinimumStock")
+                    .HasColumnType("int");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
+                b.Property<int>("Quantity")
+                    .HasColumnType("int");
 
-                    b.Property<string>("ReferenceNumber")
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                b.Property<string>("ReferenceNumber")
+                    .IsRequired()
+                    .HasMaxLength(40)
+                    .HasColumnType("nvarchar(40)");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("UpdatedAt")
+                    .HasColumnType("datetime2");
 
-                    b.Property<decimal>("WholesalePrice")
-                        .HasColumnType("decimal(18,2)");
+                b.HasKey("Id");
 
-                    b.HasKey("Id");
-
-                    b.ToTable("StockItems");
-                });
+                b.ToTable("StockItems");
+            }); 
 
             modelBuilder.Entity("Finvora.Models.StockMovement", b =>
                 {

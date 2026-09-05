@@ -49,7 +49,7 @@ namespace Finvora.Services
         public async Task<StockItem> CreateAsync(StockItem item)
         {
             if (item.Quantity < 0) throw new InvalidOperationException("Quantity cannot be negative.");
-            if (item.DealerPrice < 0 || item.WholesalePrice < 0) throw new InvalidOperationException("Prices cannot be negative.");
+            if (item.DealerPrice < 0 || item.EndUserPrice < 0) throw new InvalidOperationException("Prices cannot be negative.");
 
             using var db = new FinvoraDbContext();
 
@@ -87,7 +87,7 @@ namespace Finvora.Services
         public async Task UpdateAsync(StockItem updated, string? adjustmentReason = null)
         {
             if (updated.Quantity < 0) throw new InvalidOperationException("Quantity cannot be negative.");
-            if (updated.DealerPrice < 0 || updated.WholesalePrice < 0) throw new InvalidOperationException("Prices cannot be negative.");
+            if (updated.DealerPrice < 0 || updated.EndUserPrice < 0) throw new InvalidOperationException("Prices cannot be negative.");
 
             using var db = new FinvoraDbContext();
 
@@ -103,13 +103,12 @@ namespace Finvora.Services
             existing.DistributorPhone = updated.DistributorPhone;
             existing.DistributorEmail = updated.DistributorEmail;
             existing.DistributorAddress = updated.DistributorAddress;
-            existing.ContactPerson = updated.ContactPerson;
             existing.ImporterReference = updated.ImporterReference;
             existing.Condition = updated.Condition;
             existing.Quantity = updated.Quantity;
             existing.MinimumStock = updated.MinimumStock;
             existing.DealerPrice = updated.DealerPrice;
-            existing.WholesalePrice = updated.WholesalePrice;
+            existing.EndUserPrice = updated.EndUserPrice;
             existing.Description = updated.Description;
             existing.UpdatedAt = DateTime.Now;
 
@@ -196,4 +195,4 @@ namespace Finvora.Services
             StockChanged?.Invoke(this, EventArgs.Empty);
         }
     }
-}  
+} 

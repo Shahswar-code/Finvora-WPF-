@@ -34,12 +34,9 @@
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="FieldComboBox" TargetType="ComboBox">
-            <Setter Property="Background" Value="{DynamicResource BackgroundSecondaryBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
-            <Setter Property="Padding" Value="10,8"/>
-        </Style>
+        <Style x:Key="FieldComboBox" TargetType="ComboBox" BasedOn="{StaticResource AppComboBoxBaseStyle}"/>
+
+        <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
 
         <Style x:Key="FieldDatePicker" TargetType="DatePicker">
             <Setter Property="Background" Value="{DynamicResource BackgroundSecondaryBrush}"/>
@@ -124,9 +121,19 @@
                         </ComboBox.ItemTemplate>
                     </ComboBox>
 
+                    <StackPanel Visibility="{Binding SelectedStockItem, Converter={StaticResource NullToVisibilityConverter}}"
+                                Margin="0,0,0,12">
+                        <TextBlock Style="{StaticResource FieldLabel}">
+                            <Run Text="Quantity *"/>
+                            <Run Text="{Binding SelectedStockItem.Quantity, StringFormat=' (Available: {0})', Mode=OneWay}"
+                                 Foreground="{DynamicResource TextMutedBrush}"/>
+                        </TextBlock>
+                        <TextBox Text="{Binding SelectedQuantityText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBox}"/>
+                    </StackPanel>
+
                     <TextBlock Text="Item / Product *" Style="{StaticResource FieldLabel}"/>
                     <TextBox Text="{Binding ItemName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBox}" Margin="0,0,0,12"/>
-                    
+
                     <Grid Margin="0,0,0,12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -232,4 +239,4 @@
 
         </Grid>
     </Border>
-</Window>  
+</Window> 

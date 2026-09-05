@@ -16,8 +16,9 @@ namespace Finvora.ViewModels
     /// are captured together in one form. Picking a stock item is optional --
     /// it just pre-fills ItemName/TotalPrice from inventory; typing a plan
     /// description by hand (the original behavior) still works unchanged.
-    /// One unit is deducted from stock on successful save, since a plan here
-    /// always represents selling exactly one item.
+    /// Quantity defaults to 1 and is capped at the item's available stock;
+    /// Total Price re-prices as DealerPrice x Quantity, and that many units
+    /// are deducted from stock on successful save.
     /// </summary>
     public partial class AddCustomerViewModel : ObservableObject
     {
@@ -37,6 +38,7 @@ namespace Finvora.ViewModels
 
         // ---------- Section 2: Plan info ----------
         [ObservableProperty] private StockItem? selectedStockItem;
+        [ObservableProperty] private string selectedQuantityText = "1";
         [ObservableProperty] private string itemName = string.Empty;
         [ObservableProperty] private string totalPriceText = string.Empty;
         [ObservableProperty] private string advancePaidText = "0";
@@ -63,12 +65,41 @@ namespace Finvora.ViewModels
         partial void OnAdvancePaidTextChanged(string value) => OnPropertyChanged(nameof(RemainingPreview));
 
         /// <summary>Picking a stock item pre-fills the name and a starting
-        /// price -- both stay editable afterward, this is just a shortcut.</summary>
+        /// price -- both stay editable afterward, this is just a shortcut.
+        /// Quantity resets to 1 and Total Price is re-priced for that quantity.</summary>
         partial void OnSelectedStockItemChanged(StockItem? value)
         {
             if (value is null) return;
             ItemName = value.ItemName;
+            SelectedQuantityText = "1";
             TotalPriceText = value.DealerPrice.ToString("0.##");
+        }
+
+        /// <summary>Keeps Quantity within [1, available stock] and re-prices
+        /// Total Price as DealerPrice x Quantity whenever a stock item is selected.
+        /// Manual (non-stock) plans are untouched -- this only fires meaningfully
+        /// once SelectedStockItem is set.</summary>
+        partial void OnSelectedQuantityTextChanged(string value)
+        {
+            if (SelectedStockItem is null) return;
+
+            if (!int.TryParse(value, out var qty) || qty < 1)
+            {
+                qty = 1;
+            }
+            else if (qty > SelectedStockItem.Quantity)
+            {
+                qty = SelectedStockItem.Quantity;
+            }
+
+            var clamped = qty.ToString();
+            if (SelectedQuantityText != clamped)
+            {
+                SelectedQuantityText = clamped; // triggers this handler again with the clamped value
+                return;
+            }
+
+            TotalPriceText = (SelectedStockItem.DealerPrice * qty).ToString("0.##");
         }
 
         public AddCustomerViewModel(CustomerService customerService, NotificationService notificationService, StockService stockService)
@@ -122,12 +153,21 @@ namespace Finvora.ViewModels
 
             // Re-check stock is still available right before saving -- basic
             // guard in case someone else sold the last unit in the meantime.
+            var selectedQuantity = 1;
             if (SelectedStockItem is not null)
             {
-                var freshItem = await _stockService.GetByIdAsync(SelectedStockItem.Id);
-                if (freshItem is null || freshItem.Quantity < 1)
+                if (!int.TryParse(SelectedQuantityText, out selectedQuantity) || selectedQuantity < 1)
                 {
-                    ErrorMessage = "Insufficient stock. This item is no longer available.";
+                    ErrorMessage = "Enter a valid quantity.";
+                    return;
+                }
+
+                var freshItem = await _stockService.GetByIdAsync(SelectedStockItem.Id);
+                if (freshItem is null || freshItem.Quantity < selectedQuantity)
+                {
+                    ErrorMessage = freshItem is null
+                        ? "Insufficient stock. This item is no longer available."
+                        : $"Insufficient stock. Only {freshItem.Quantity} units are available.";
                     return;
                 }
             }
@@ -178,7 +218,7 @@ namespace Finvora.ViewModels
                 try
                 {
                     await _stockService.DeductStockAsync(
-                        SelectedStockItem.Id, 1, "Customer", customer.Id, $"Sold to {customer.FullName}");
+                        SelectedStockItem.Id, selectedQuantity, "Customer", customer.Id, $"Sold to {customer.FullName}");
                 }
                 catch (Exception ex)
                 {

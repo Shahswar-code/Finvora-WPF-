@@ -36,21 +36,7 @@
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="FieldComboBox" TargetType="ComboBox">
-            <Setter Property="Background" Value="{DynamicResource BackgroundSecondaryBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
-            <Setter Property="Padding" Value="10,8"/>
-            <Setter Property="ItemContainerStyle">
-                <Setter.Value>
-                    <Style TargetType="ComboBoxItem">
-                        <Setter Property="Foreground" Value="Black"/>
-                        <Setter Property="Background" Value="White"/>
-                        <Setter Property="Padding" Value="10,8"/>
-                    </Style>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <Style x:Key="FieldComboBox" TargetType="ComboBox" BasedOn="{StaticResource AppComboBoxBaseStyle}"/>
 
         <Style x:Key="SectionHeader" TargetType="TextBlock" BasedOn="{StaticResource TextSubheading}">
             <Setter Property="Margin" Value="0,4,0,14"/>
@@ -96,21 +82,8 @@
 
                     <TextBlock Text="Distributor / Importer Details" Style="{StaticResource SectionHeader}"/>
 
-                    <Grid Margin="0,0,0,12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="12"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Distributor / Importer Name *" Style="{StaticResource FieldLabel}"/>
-                            <TextBox Text="{Binding DistributorName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBox}"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Contact Person" Style="{StaticResource FieldLabel}"/>
-                            <TextBox Text="{Binding ContactPerson, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBox}"/>
-                        </StackPanel>
-                    </Grid>
+                    <TextBlock Text="Distributor / Importer Name *" Style="{StaticResource FieldLabel}"/>
+                    <TextBox Text="{Binding DistributorName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBox}" Margin="0,0,0,12"/>
 
                     <Grid Margin="0,0,0,12">
                         <Grid.ColumnDefinitions>
@@ -214,8 +187,8 @@
                             <TextBox Text="{Binding DealerPriceText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBox}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="Wholesale Price *" Style="{StaticResource FieldLabel}"/>
-                            <TextBox Text="{Binding WholesalePriceText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBox}"/>
+                            <TextBlock Text="End User Price *" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding EndUserPriceText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldTextBox}"/>
                         </StackPanel>
                     </Grid>
 
@@ -265,7 +238,7 @@
                     </Button.Template>
                 </Button>
 
-                <Button Grid.Column="2" Content="{Binding SaveButtonText}" Command="{Binding SaveCommand}"
+                <Button Grid.Column="2" Content="Save" Command="{Binding SaveCommand}"
                         IsEnabled="{Binding IsSaving, Converter={StaticResource InverseBooleanConverter}}"
                         Padding="18,9" FontWeight="SemiBold" Background="{DynamicResource AccentSolidBrush}"
                         Foreground="White" BorderThickness="0" Cursor="Hand">

@@ -1,0 +1,455 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        APP-WIDE COMBOBOX FIX
+        ======================
+
+        Purpose:
+        Replaces WPF's default ComboBox template so that:
+
+        1. Closed ComboBox text always respects Foreground.
+        2. Editable ComboBoxes work correctly.
+        3. Searchable ComboBoxes remain usable.
+        4. Dropdown items use the application's theme brushes.
+        5. Theme switching works through DynamicResource.
+        6. Selected and highlighted dropdown items are styled consistently.
+
+        IMPORTANT:
+        The ToggleButton is placed BEFORE the editable TextBox so that
+        the TextBox remains on top and can receive mouse/keyboard input.
+    -->
+
+
+    <!-- ================================================================ -->
+    <!-- COMBOBOX CONTROL TEMPLATE                                       -->
+    <!-- ================================================================ -->
+
+    <ControlTemplate x:Key="AppComboBoxControlTemplate"
+                     TargetType="ComboBox">
+
+        <Grid>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+
+            <!-- ======================================================== -->
+            <!-- OUTER BORDER                                             -->
+            <!-- ======================================================== -->
+
+            <Border x:Name="Border"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="6"/>
+
+
+            <!-- ======================================================== -->
+            <!-- TOGGLE BUTTON                                             -->
+            <!--                                                         -->
+            <!-- IMPORTANT: This is intentionally BEFORE the editable    -->
+            <!-- TextBox so the TextBox remains above it and receives     -->
+            <!-- mouse/keyboard input.                                   -->
+            <!-- ======================================================== -->
+
+            <ToggleButton Grid.Column="0"
+                          Grid.ColumnSpan="2"
+                          Background="Transparent"
+                          BorderThickness="0"
+                          Focusable="False"
+                          ClickMode="Press"
+                          IsChecked="{Binding IsDropDownOpen,
+                                              RelativeSource={RelativeSource TemplatedParent},
+                                              Mode=TwoWay}">
+
+                <ToggleButton.Template>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border Background="Transparent"/>
+                    </ControlTemplate>
+                </ToggleButton.Template>
+
+            </ToggleButton>
+
+
+            <!-- ======================================================== -->
+            <!-- CLOSED-STATE CONTENT                                      -->
+            <!--                                                         -->
+            <!-- Used by normal/non-editable ComboBoxes.                 -->
+            <!-- ======================================================== -->
+
+            <ContentPresenter x:Name="ContentSite"
+                              Grid.Column="0"
+                              Content="{TemplateBinding SelectionBoxItem}"
+                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                              IsHitTestVisible="False"
+                              Margin="{TemplateBinding Padding}"
+                              VerticalAlignment="Center"
+                              HorizontalAlignment="Left"
+                              TextElement.Foreground="{TemplateBinding Foreground}"
+                              TextElement.FontFamily="{TemplateBinding FontFamily}"
+                              TextElement.FontSize="{TemplateBinding FontSize}"/>
+
+
+            <!-- ======================================================== -->
+            <!-- EDITABLE COMBOBOX TEXTBOX                                 -->
+            <!--                                                         -->
+            <!-- Required for IsEditable="True".                         -->
+            <!--                                                         -->
+            <!-- Because this appears AFTER the ToggleButton, it is      -->
+            <!-- rendered above the ToggleButton and remains clickable.  -->
+            <!-- ======================================================== -->
+
+            <TextBox x:Name="PART_EditableTextBox"
+                     Grid.Column="0"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     Foreground="{TemplateBinding Foreground}"
+                     CaretBrush="{TemplateBinding Foreground}"
+                     FontFamily="{TemplateBinding FontFamily}"
+                     FontSize="{TemplateBinding FontSize}"
+                     Margin="{TemplateBinding Padding}"
+                     VerticalAlignment="Center"
+                     HorizontalContentAlignment="Left"
+                     VerticalContentAlignment="Center"
+                     Focusable="True"
+                     Visibility="Collapsed">
+
+                <TextBox.Template>
+
+                    <ControlTemplate TargetType="TextBox">
+
+                        <ScrollViewer x:Name="PART_ContentHost"
+                                      Background="Transparent"/>
+
+                    </ControlTemplate>
+
+                </TextBox.Template>
+
+            </TextBox>
+
+
+            <!-- ======================================================== -->
+            <!-- DROPDOWN ARROW                                            -->
+            <!-- ======================================================== -->
+
+            <TextBlock Grid.Column="1"
+                       Text="&#xE70D;"
+                       FontFamily="Segoe MDL2 Assets"
+                       FontSize="9"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
+                       VerticalAlignment="Center"
+                       Margin="0,0,10,0"
+                       IsHitTestVisible="False"/>
+
+
+            <!-- ======================================================== -->
+            <!-- DROPDOWN POPUP                                             -->
+            <!-- ======================================================== -->
+
+            <Popup x:Name="PART_Popup"
+                   Grid.Column="0"
+                   Grid.ColumnSpan="2"
+                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                   Placement="Bottom"
+                   AllowsTransparency="True"
+                   PopupAnimation="Slide"
+                   Focusable="False">
+
+                <Border Background="{DynamicResource SurfaceCardBrush}"
+                        BorderBrush="{DynamicResource BorderStrongBrush}"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        Margin="0,4,0,0"
+                        MaxHeight="260"
+                        MinWidth="{Binding ActualWidth,
+                                           RelativeSource={RelativeSource TemplatedParent}}"
+                        SnapsToDevicePixels="True">
+
+                    <ScrollViewer Margin="4"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+
+                        <ItemsPresenter/>
+
+                    </ScrollViewer>
+
+                </Border>
+
+            </Popup>
+
+        </Grid>
+
+
+        <!-- ============================================================ -->
+        <!-- TEMPLATE TRIGGERS                                             -->
+        <!-- ============================================================ -->
+
+        <ControlTemplate.Triggers>
+
+            <!-- ======================================================== -->
+            <!-- EDITABLE COMBOBOX                                         -->
+            <!-- ======================================================== -->
+
+            <Trigger Property="IsEditable"
+                     Value="True">
+
+                <Setter TargetName="ContentSite"
+                        Property="Visibility"
+                        Value="Collapsed"/>
+
+                <Setter TargetName="PART_EditableTextBox"
+                        Property="Visibility"
+                        Value="Visible"/>
+
+            </Trigger>
+
+
+            <!-- ======================================================== -->
+            <!-- DISABLED COMBOBOX                                          -->
+            <!-- ======================================================== -->
+
+            <Trigger Property="IsEnabled"
+                     Value="False">
+
+                <Setter TargetName="Border"
+                        Property="Opacity"
+                        Value="0.55"/>
+
+            </Trigger>
+
+        </ControlTemplate.Triggers>
+
+    </ControlTemplate>
+
+
+
+    <!-- ================================================================ -->
+    <!-- COMBOBOX ITEM STYLE                                             -->
+    <!-- ================================================================ -->
+
+    <Style x:Key="AppComboBoxItemStyle"
+           TargetType="ComboBoxItem">
+
+        <!-- Item spacing -->
+        <Setter Property="Padding"
+                Value="10,8"/>
+
+        <!-- Normal item text -->
+        <Setter Property="Foreground"
+                Value="{DynamicResource TextPrimaryBrush}"/>
+
+        <!-- Normal item background -->
+        <Setter Property="Background"
+                Value="Transparent"/>
+
+
+        <!-- ============================================================ -->
+        <!-- ITEM TEMPLATE                                                 -->
+        <!-- ============================================================ -->
+
+        <Setter Property="Template">
+
+            <Setter.Value>
+
+                <ControlTemplate TargetType="ComboBoxItem">
+
+                    <Border x:Name="ItemBorder"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="4"
+                            Margin="2,1"
+                            Padding="{TemplateBinding Padding}">
+
+                        <ContentPresenter Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                          TextElement.Foreground="{TemplateBinding Foreground}"
+                                          VerticalAlignment="Center"/>
+
+                    </Border>
+
+
+                    <!-- ================================================= -->
+                    <!-- ITEM TRIGGERS                                      -->
+                    <!-- ================================================= -->
+
+                    <ControlTemplate.Triggers>
+
+                        <!-- ============================================= -->
+                        <!-- HOVER / HIGHLIGHT                              -->
+                        <!-- ============================================= -->
+
+                        <Trigger Property="IsHighlighted"
+                                 Value="True">
+
+                            <Setter TargetName="ItemBorder"
+                                    Property="Background"
+                                    Value="{DynamicResource SurfaceCardHoverBrush}"/>
+
+                        </Trigger>
+
+
+                        <!-- ============================================= -->
+                        <!-- SELECTED                                       -->
+                        <!-- ============================================= -->
+
+                        <Trigger Property="IsSelected"
+                                 Value="True">
+
+                            <Setter TargetName="ItemBorder"
+                                    Property="Background"
+                                    Value="{DynamicResource AccentSolidBrush}"/>
+
+                            <Setter Property="Foreground"
+                                    Value="White"/>
+
+                        </Trigger>
+
+
+                        <!-- ============================================= -->
+                        <!-- DISABLED ITEM                                  -->
+                        <!-- ============================================= -->
+
+                        <Trigger Property="IsEnabled"
+                                 Value="False">
+
+                            <Setter Property="Opacity"
+                                    Value="0.55"/>
+
+                        </Trigger>
+
+                    </ControlTemplate.Triggers>
+
+                </ControlTemplate>
+
+            </Setter.Value>
+
+        </Setter>
+
+    </Style>
+
+
+
+    <!-- ================================================================ -->
+    <!-- BASE COMBOBOX STYLE                                             -->
+    <!-- ================================================================ -->
+
+    <!--
+        Every local/window ComboBox style can inherit from this:
+
+        BasedOn="{StaticResource AppComboBoxBaseStyle}"
+
+        Example:
+
+        <Style TargetType="ComboBox"
+               BasedOn="{StaticResource AppComboBoxBaseStyle}">
+        </Style>
+    -->
+
+    <Style x:Key="AppComboBoxBaseStyle"
+           TargetType="ComboBox">
+
+
+        <!-- ============================================================ -->
+        <!-- BACKGROUND                                                    -->
+        <!-- ============================================================ -->
+
+        <Setter Property="Background"
+                Value="{DynamicResource BackgroundSecondaryBrush}"/>
+
+
+        <!-- ============================================================ -->
+        <!-- FOREGROUND                                                    -->
+        <!-- ============================================================ -->
+
+        <Setter Property="Foreground"
+                Value="{DynamicResource TextPrimaryBrush}"/>
+
+
+        <!-- ============================================================ -->
+        <!-- BORDER                                                        -->
+        <!-- ============================================================ -->
+
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource BorderDefaultBrush}"/>
+
+        <Setter Property="BorderThickness"
+                Value="1"/>
+
+
+        <!-- ============================================================ -->
+        <!-- PADDING                                                       -->
+        <!-- ============================================================ -->
+
+        <Setter Property="Padding"
+                Value="10,8"/>
+
+
+        <!-- ============================================================ -->
+        <!-- FONT                                                          -->
+        <!-- ============================================================ -->
+
+        <Setter Property="FontFamily"
+                Value="{StaticResource AppFontFamily}"/>
+
+        <Setter Property="FontSize"
+                Value="{StaticResource FontSizeBody}"/>
+
+
+        <!-- ============================================================ -->
+        <!-- DROPDOWN ITEM STYLE                                           -->
+        <!-- ============================================================ -->
+
+        <Setter Property="ItemContainerStyle"
+                Value="{StaticResource AppComboBoxItemStyle}"/>
+
+
+        <!-- ============================================================ -->
+        <!-- CUSTOM CONTROL TEMPLATE                                       -->
+        <!-- ============================================================ -->
+
+        <Setter Property="Template"
+                Value="{StaticResource AppComboBoxControlTemplate}"/>
+
+
+        <!-- ============================================================ -->
+        <!-- STYLE TRIGGERS                                                -->
+        <!-- ============================================================ -->
+
+        <Style.Triggers>
+
+            <!-- ======================================================== -->
+            <!-- FOCUSED                                                    -->
+            <!-- ======================================================== -->
+
+            <Trigger Property="IsFocused"
+                     Value="True">
+
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource AccentSolidBrush}"/>
+
+            </Trigger>
+
+
+            <!-- ======================================================== -->
+            <!-- DISABLED                                                   -->
+            <!-- ======================================================== -->
+
+            <Trigger Property="IsEnabled"
+                     Value="False">
+
+                <Setter Property="Foreground"
+                        Value="{DynamicResource TextSecondaryBrush}"/>
+
+            </Trigger>
+
+        </Style.Triggers>
+
+    </Style> 
+
+</ResourceDictionary> 

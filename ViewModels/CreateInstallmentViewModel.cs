@@ -30,6 +30,7 @@ namespace Finvora.ViewModels
 
         [ObservableProperty] private Customer? selectedCustomer;
         [ObservableProperty] private StockItem? selectedStockItem;
+        [ObservableProperty] private string selectedQuantityText = "1";
 
         [ObservableProperty] private string itemName = string.Empty;
         [ObservableProperty] private string totalPriceText = string.Empty;
@@ -67,7 +68,33 @@ namespace Finvora.ViewModels
         {
             if (value is null) return;
             ItemName = value.ItemName;
+            SelectedQuantityText = "1";
             TotalPriceText = value.DealerPrice.ToString("0.##");
+        }
+
+        /// <summary>Keeps Quantity within [1, available stock] and re-prices
+        /// Total Price as DealerPrice x Quantity whenever a stock item is selected.</summary>
+        partial void OnSelectedQuantityTextChanged(string value)
+        {
+            if (SelectedStockItem is null) return;
+
+            if (!int.TryParse(value, out var qty) || qty < 1)
+            {
+                qty = 1;
+            }
+            else if (qty > SelectedStockItem.Quantity)
+            {
+                qty = SelectedStockItem.Quantity;
+            }
+
+            var clamped = qty.ToString();
+            if (SelectedQuantityText != clamped)
+            {
+                SelectedQuantityText = clamped; // triggers this handler again with the clamped value
+                return;
+            }
+
+            TotalPriceText = (SelectedStockItem.DealerPrice * qty).ToString("0.##");
         }
 
         // Whichever field the user edits last drives the other -- guarded so
@@ -153,12 +180,21 @@ namespace Finvora.ViewModels
                 return;
             }
 
+            var selectedQuantity = 1;
             if (SelectedStockItem is not null)
             {
-                var freshItem = await _stockService.GetByIdAsync(SelectedStockItem.Id);
-                if (freshItem is null || freshItem.Quantity < 1)
+                if (!int.TryParse(SelectedQuantityText, out selectedQuantity) || selectedQuantity < 1)
                 {
-                    ErrorMessage = "Insufficient stock. This item is no longer available.";
+                    ErrorMessage = "Enter a valid quantity.";
+                    return;
+                }
+
+                var freshItem = await _stockService.GetByIdAsync(SelectedStockItem.Id);
+                if (freshItem is null || freshItem.Quantity < selectedQuantity)
+                {
+                    ErrorMessage = freshItem is null
+                        ? "Insufficient stock. This item is no longer available."
+                        : $"Insufficient stock. Only {freshItem.Quantity} units are available.";
                     return;
                 }
             }
@@ -198,7 +234,7 @@ namespace Finvora.ViewModels
                 try
                 {
                     await _stockService.DeductStockAsync(
-                        SelectedStockItem.Id, 1, "Installment", installment.Id, $"Sold to {SelectedCustomer.FullName}");
+                        SelectedStockItem.Id, selectedQuantity, "Installment", installment.Id, $"Sold to {SelectedCustomer.FullName}");
                 }
                 catch (Exception ex)
                 {
@@ -247,4 +283,4 @@ namespace Finvora.ViewModels
 
         private static decimal ParseDecimal(string s) => decimal.TryParse(s, out var v) ? v : 0;
     }
-}  
+} 
