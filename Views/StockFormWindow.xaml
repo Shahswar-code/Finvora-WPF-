@@ -238,7 +238,7 @@
                     </Button.Template>
                 </Button>
 
-                <Button Grid.Column="2" Content="Save" Command="{Binding SaveCommand}"
+                <Button Grid.Column="2" Content="{Binding SaveButtonText}" Command="{Binding SaveCommand}"
                         IsEnabled="{Binding IsSaving, Converter={StaticResource InverseBooleanConverter}}"
                         Padding="18,9" FontWeight="SemiBold" Background="{DynamicResource AccentSolidBrush}"
                         Foreground="White" BorderThickness="0" Cursor="Hand">

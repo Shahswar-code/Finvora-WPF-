@@ -42,9 +42,6 @@ namespace Finvora.Models
         [MaxLength(200)]
         public string? DistributorAddress { get; set; }
 
-        [MaxLength(80)]
-        public string? ContactPerson { get; set; }
-
         [MaxLength(40)]
         public string? ImporterReference { get; set; }
 
@@ -58,8 +55,11 @@ namespace Finvora.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal DealerPrice { get; set; }
 
+        /// <summary>The price this item is sold to the end customer at (was
+        /// "Wholesale Price" -- renamed since Finvora sells directly to
+        /// customers on installment plans, not wholesale).</summary>
         [Column(TypeName = "decimal(18,2)")]
-        public decimal WholesalePrice { get; set; }
+        public decimal EndUserPrice { get; set; }
 
         [MaxLength(500)]
         public string? Description { get; set; }
